@@ -2,6 +2,7 @@ import express from 'express';
 import pkg from 'pg';
 import cors from 'cors';
 import { json } from 'express';
+import path from 'path';
 
 const { Pool } = pkg;
 const app = express();
