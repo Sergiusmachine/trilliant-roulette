@@ -20,13 +20,10 @@ app.use(cors({
 }));
 app.use(json());
 
-app.use(express.static(path.join(__dirname, 'public'), {
-    setHeaders: function (res, path) {
-      if (path.endsWith('.js')) {
-        res.set('Content-Type', 'application/javascript');
-      }
-    }
-}));
+const __filename = new URL(import.meta.url).pathname;
+const __dirname = path.dirname(__filename);
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Вернуть количество рулеток
 app.post('/quantity', async (req, res) => {
