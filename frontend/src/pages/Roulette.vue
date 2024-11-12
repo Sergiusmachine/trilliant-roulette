@@ -3,7 +3,7 @@
     <div class="parent">
         <div class="container">
             <div class="scopeHidden">
-                <img class="pi-caret-down" src="../assets/logo.svg" alt="" ref="caret">
+                <img class="pi-caret-down" src="/assets/logo.svg" alt="" ref="caret">
                 <ul :class="{'moveRoulette': isActive}" class="list" ref="rouletteList">
                     <li v-for="prize of fakePrizes" :class="['element', getBackground(prize)]"><img class="img-element" :src="prize.url" alt=""></li>
                 </ul>
