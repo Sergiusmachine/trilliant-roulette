@@ -13,7 +13,6 @@ server {
     listen 443 ssl http2 default_server;
     listen [::]:443 ssl http2 default_server;
     server_name trilliantroulette.ru www.trilliantroulette.ru;
-
     # Настройки SSL, автоматически добавленные Certbot
     ssl_certificate /etc/letsencrypt/live/trilliantroulette.ru/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/trilliantroulette.ru/privkey.pem;
@@ -21,13 +20,20 @@ server {
     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
 
     # Укажите корневой каталог вашего сайта
-    root /root/trilliant-roulette;
+    root /var/www/trilliant-roulette/frontend;
     index index.html index.htm index.nginx-debian.html;
 
     # Настройка обработки запросов
     location / {
         try_files $uri $uri/ =404;
     }
+
+    location ~* \.(js|css|json|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf)$ {
+        expires 1y;
+        access_log off;
+        add_header Cache-Control "public, max-age=31536000, immutable";
+    }
+
     # Настройки прокси для API (если требуется)
     # Закомментируйте этот блок, если не используете прокси для API
    # location /api/ {
