@@ -288,8 +288,7 @@ export default {
 
         async getQuantity() {
             try {
-                const quantityData = await this.$store.dispatch('getQuantity'); // Вызываем действие Vuex
-                console.log('Полученное количество:', quantityData); // Логируем полученные данные
+                return await this.$store.dispatch('getQuantity'); // Вызываем действие Vuex
             } catch (error) {
                 alert(error.message); // Обрабатываем ошибку
             }
