@@ -481,6 +481,25 @@ export default {
         background-color: #7a7720;
     }
 
+    @media(max-width: 440px) {
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+        .sell-prize-btn {
+            margin-left: 0;
+            width: auto;
+            margin-bottom: 30px;
+        }
+        .get-prize-btn {
+            width: auto;
+            margin-bottom: 0;
+            margin-left: 0;
+        }
+    }
+
     @media(max-width: 650px) {
         .container {
             width: 100%;
