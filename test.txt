@@ -1,0 +1,41 @@
+# Блок для HTTP (порт 80), перенаправляющий все запросы на HTTPS
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name trilliantroulette.ru www.trilliantroulette.ru;
+
+    # Перенаправление всех запросов с HTTP на HTTPS
+    return 301 https://$host$request_uri;
+}
+
+# Блок для HTTPS (порт 443) с SSL-настройками от Certbot
+server {
+    listen 443 ssl http2 default_server;
+    listen [::]:443 ssl http2 default_server;
+    server_name trilliantroulette.ru www.trilliantroulette.ru;
+
+    # Настройки SSL, автоматически добавленные Certbot
+    ssl_certificate /etc/letsencrypt/live/trilliantroulette.ru/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/trilliantroulette.ru/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    # Укажите корневой каталог вашего сайта
+    root /root/trilliant-roulette;
+    index index.html index.htm index.nginx-debian.html;
+
+    # Настройка обработки запросов
+    location / {
+        try_files $uri $uri/ =404;
+    }
+    # Настройки прокси для API (если требуется)
+    # Закомментируйте этот блок, если не используете прокси для API
+   # location /api/ {
+       # proxy_pass http://backend:3000; # Убедитесь, что имя или IP бэкенда верно указаны
+        #proxy_http_version 1.1;
+        #proxy_set_header Upgrade $http_upgrade;
+        #proxy_set_header Connection 'upgrade';
+        #proxy_set_header Host $host;
+        #proxy_cache_bypass $http_upgrade;
+    #}
+}
