@@ -9,9 +9,9 @@ const app = express();
 
 const pool = new Pool({
     user: 'postgres',
-    password: '123123',
-    host: '127.0.0.1',
-    database: 'TrilliantRoulette',
+    password: '123123qwe',
+    host: '176.114.67.27',
+    database: 'trilliant',
     port: 5432,
 });
 
