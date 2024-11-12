@@ -36,7 +36,7 @@ export default {
             console.log(this.username, this.password)
             if(this.password === this.repeatPassword) {
                 try {
-                    const res = await fetch('http://localhost:3000/updatePassword', {
+                    const res = await fetch('http://176.114.67.27/api/updatePassword', {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',

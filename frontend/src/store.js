@@ -52,7 +52,7 @@ export default createStore({
         // Авторизация
         async login({ commit, dispatch }, { name, password }) {
             try {
-                const response = await fetch('http://localhost:3000/login', {
+                const response = await fetch('http://176.114.67.27/api/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ export default createStore({
         // Получаем количество рулеток из БД
         async getQuantity({ commit, state }) {
             try {
-                const res = await fetch('http://localhost:3000/quantity', {
+                const res = await fetch('http://176.114.67.27/api/quantity', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export default createStore({
             if(state.user.quantity > 0) {
                 commit('SET_QUANTITY', newQuantity)
                 try {
-                    const res = await fetch('http://localhost:3000/updateQuantity', {
+                    const res = await fetch('http://176.114.67.27/api/updateQuantity', {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ export default createStore({
         // Проверка прав администратора
         async startAdminCheck({ commit, state }) {
             try {
-                const res = await fetch('http://localhost:3000/checkAdmin', {
+                const res = await fetch('http://176.114.67.27/api/checkAdmin', {
                     method: 'POST',
                     headers: {
                     'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ export default createStore({
         //     // Запуск нового интервала проверки прав администратора
         //     const intervalId = setInterval(async () => {
         //       try {
-        //         const res = await fetch('http://localhost:3000/checkAdmin', {
+        //         const res = await fetch('http://176.114.67.27/api/checkAdmin', {
         //           method: 'POST',
         //           headers: {
         //             'Content-Type': 'application/json',

@@ -171,7 +171,7 @@ export default {
             this.isButtonDisabled = false
             if(this.finalResult.name !== 'Respin') {
                 try {
-                    const res = await fetch('http://localhost:3000/getPrize', {
+                    const res = await fetch('http://176.114.67.27/api/getPrize', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -197,7 +197,7 @@ export default {
         async sellPrize() {
             this.isHidden = true;
             try {
-                const res = await fetch('http://localhost:3000/sellPrize', {
+                const res = await fetch('http://176.114.67.27/api/sellPrize', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
