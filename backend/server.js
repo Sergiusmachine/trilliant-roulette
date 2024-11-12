@@ -43,7 +43,7 @@ app.post('/api/quantity', async (req, res) => {
 })
 
 // Уменьшить количество рулеток
-app.put('/api//updateQuantity', async (req, res) => {
+app.put('/api/updateQuantity', async (req, res) => {
     const { username, quantity } = req.body
     try {
         const updateQuery = 'UPDATE users SET quantity = $1 WHERE username = $2'
@@ -55,7 +55,7 @@ app.put('/api//updateQuantity', async (req, res) => {
 })
 
 // Добавить приз в базу данных
-app.post('/api//getPrize', async (req ,res) => {
+app.post('/api/getPrize', async (req ,res) => {
     const { username, prizeName, quantity } = req.body
     try {
         const insertQuery = 'INSERT INTO user_prizes (username, prize_name, quantity) VALUES ($1, $2, $3)';
@@ -67,7 +67,7 @@ app.post('/api//getPrize', async (req ,res) => {
 })
 
 // Добавить компенсацию за приз в базу данных
-app.post('/api//sellPrize', async (req ,res) => {
+app.post('/api/sellPrize', async (req ,res) => {
     const { username, prizeName, alternative } = req.body
     try {
         const insertQuery = 'INSERT INTO user_prizes (username, prize_name, quantity) VALUES ($1, $2, $3)';
@@ -79,7 +79,7 @@ app.post('/api//sellPrize', async (req ,res) => {
 })
 
 // Получить список призов
-app.post('/api//getPrizeList', async (req, res) => {
+app.post('/api/getPrizeList', async (req, res) => {
     const { username } = req.body
     try {
         const data = 'SELECT * FROM user_prizes WHERE username = $1'
@@ -91,7 +91,7 @@ app.post('/api//getPrizeList', async (req, res) => {
 })
 
 // Получить админу список призов всех игроков
-app.post('/api//getUserPrizes', async (req, res) => {
+app.post('/api/getUserPrizes', async (req, res) => {
     try {
         const data = 'SELECT * FROM user_prizes'
         const result = await pool.query(data)
@@ -102,7 +102,7 @@ app.post('/api//getUserPrizes', async (req, res) => {
 })
 
 // Удаление призов из базы данных
-app.delete('/api//deletePrize', async (req, res) => {
+app.delete('/api/deletePrize', async (req, res) => {
     const { username } = req.body
 
     try {
@@ -116,7 +116,7 @@ app.delete('/api//deletePrize', async (req, res) => {
 })
 
 // Начислить рулетки через админку
-app.post('/api//addQuantity', async (req, res) => {
+app.post('/api/addQuantity', async (req, res) => {
     const { username, quantity } = req.body
     
     try {
@@ -134,7 +134,7 @@ app.post('/api//addQuantity', async (req, res) => {
 })
 
 // Зарегистрировать нового пользователя
-app.post('/api//addUser', async (req, res) => {
+app.post('/api/addUser', async (req, res) => {
     const { username, password } = req.body
     
     try {
@@ -152,7 +152,7 @@ app.post('/api//addUser', async (req, res) => {
 })
 
 // Проверка прав администратора
-app.post('/api//checkAdmin', async (req, res) => {
+app.post('/api/checkAdmin', async (req, res) => {
     const { username } = req.body;
     let client;
 
@@ -176,7 +176,7 @@ app.post('/api//checkAdmin', async (req, res) => {
 });
 
 // Авторизация
-app.post('/api//login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { name, password } = req.body;
     let client;
 
@@ -204,7 +204,7 @@ app.post('/api//login', async (req, res) => {
 });
 
 // Смена пароля
-app.put('/api//updatePassword', async (req, res) => {
+app.put('/api/updatePassword', async (req, res) => {
     const { password, username } = req.body
 
     try {
