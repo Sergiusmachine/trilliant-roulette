@@ -1,4 +1,4 @@
-import { createApp } from 'https://cdn.jsdelivr.net/npm/vue@next/dist/vue.esm-browser.js'
+import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 import router from './router'
