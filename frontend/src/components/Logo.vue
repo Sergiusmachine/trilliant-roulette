@@ -1,6 +1,6 @@
 <template>
     <div class="logo">
-        <img class="logo-img" src="../assets/logo.svg" alt="">
+        <img class="logo-img" src="/assets/logo.svg" alt="">
         <router-link to="/roulette" class="logo-link">Trilliant Roulette</router-link>
     </div>
 </template>
