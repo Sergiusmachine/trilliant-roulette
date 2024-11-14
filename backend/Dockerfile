@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Открываем порт, на котором будет работать бэкенд
-EXPOSE 3000
+EXPOSE 8000
 
 # Запускаем сервер
 CMD ["npm", "run", "server"]
