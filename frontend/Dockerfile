@@ -17,7 +17,7 @@ COPY . .
 RUN npm run build
 
 # Этап сервера с NGINX
-FROM nginx:alpine
+FROM nginx:stable-alpine
 
 # Копируем собранный фронтенд в папку, где NGINX будет его обслуживать
 COPY --from=build /app/dist /usr/share/nginx/html
