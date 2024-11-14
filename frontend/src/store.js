@@ -52,7 +52,7 @@ export default createStore({
         // Авторизация
         async login({ commit, dispatch }, { name, password }) {
             try {
-                const response = await fetch('http://trilliantroulette.ru/api/login', {
+                const response = await fetch('https://trilliantroulette.ru/api/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -82,7 +82,7 @@ export default createStore({
         // Получаем количество рулеток из БД
         async getQuantity({ commit, state }) {
             try {
-                const res = await fetch('http://trilliantroulette.ru/api/quantity', {
+                const res = await fetch('https://trilliantroulette.ru/api/quantity', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -108,7 +108,7 @@ export default createStore({
             if(state.user.quantity > 0) {
                 commit('SET_QUANTITY', newQuantity)
                 try {
-                    const res = await fetch('http://trilliantroulette.ru/api/updateQuantity', {
+                    const res = await fetch('https://trilliantroulette.ru/api/updateQuantity', {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',
@@ -153,7 +153,7 @@ export default createStore({
         // Проверка прав администратора
         async startAdminCheck({ commit, state }) {
             try {
-                const res = await fetch('http://trilliantroulette.ru/api/checkAdmin', {
+                const res = await fetch('https://trilliantroulette.ru/api/checkAdmin', {
                     method: 'POST',
                     headers: {
                     'Content-Type': 'application/json',

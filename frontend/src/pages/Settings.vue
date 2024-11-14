@@ -36,7 +36,7 @@ export default {
             console.log(this.username, this.password)
             if(this.password === this.repeatPassword) {
                 try {
-                    const res = await fetch('http://trilliantroulette.ru/api/updatePassword', {
+                    const res = await fetch('https://trilliantroulette.ru/api/updatePassword', {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json',

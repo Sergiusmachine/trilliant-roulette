@@ -32,7 +32,7 @@ export default {
     methods: {
         // Возвращем список призов
         async getPrizeList() {
-            const res = await fetch('http://trilliantroulette.ru/api/getPrizeList', {
+            const res = await fetch('https://trilliantroulette.ru/api/getPrizeList', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
