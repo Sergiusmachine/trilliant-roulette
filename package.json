@@ -1,6 +1,5 @@
 {
   "dependencies": {
-    "nginx": "^1.0.8",
-    "vue": "^3.5.12"
+    "nginx": "^1.0.8"
   }
 }
