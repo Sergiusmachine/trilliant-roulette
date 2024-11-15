@@ -320,7 +320,7 @@ export default {
     .scopeHidden {
         position: relative;
         overflow: hidden;
-        width: 78%;
+        width: 800px;
         border: 1px solid rgb(84, 84, 84);
         margin: 0 auto;
         height: 150px;
@@ -339,6 +339,7 @@ export default {
 
     .list {
         position: relative;
+        z-index: 0;
         display: inline-flex;
         list-style: none;
         margin: 0;
@@ -505,14 +506,45 @@ export default {
         .container {
             width: 100%;
         }
-        .scopeHidden {
-            width: 90%;
-        }
     }
 
     @media(max-width: 1000px) {
         .prize-window {
             width: 80%;
         }
+        .scopeHidden {
+            width: 640px;
+        }
+        .moveRoulette {
+            transform: translateX(calc(var(--random-number) * 1px - 80px));
+        }
     }
+
+    @media(max-width: 800px) {
+        .scopeHidden {
+            width: 480px;
+        }
+        .moveRoulette {
+            transform: translateX(calc(var(--random-number) * 1px - 160px));
+        }
+    }
+
+    @media(max-width: 550px) {
+        .scopeHidden {
+            width: 320px;
+        }
+        .moveRoulette {
+            transform: translateX(calc(var(--random-number) * 1px - 240px));
+        }
+    }
+
+    @media(max-width: 340px) {
+        .scopeHidden {
+            width: 160px;
+        }
+        .moveRoulette {
+            transform: translateX(calc(var(--random-number) * 1px - 320px));
+        }
+    }
+
 </style>
