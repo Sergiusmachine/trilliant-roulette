@@ -170,6 +170,7 @@ export default {
         async getPrize() {
             this.isHidden = true;
             this.isButtonDisabled = false
+            console.log(this.finalResult.name)
             if(this.finalResult.name !== 'Respin') {
                 try {
                     const res = await fetch('https://trilliantroulette.ru/api/getPrize', {
