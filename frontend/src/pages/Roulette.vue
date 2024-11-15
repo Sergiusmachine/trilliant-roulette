@@ -172,24 +172,26 @@ export default {
             this.isHidden = true;
             this.isButtonDisabled = false
             console.log(this.finalResult.name)
-            try {
-                const res = await fetch('https://trilliantroulette.ru/api/getPrize', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        username: this.$store.state.user.name,
-                        prizeName: this.finalResult.name,
-                        quantity: this.finalResult.quantity !== undefined ? this.finalResult.quantity : null,
+            if(this.finalResult.name !== 'Respin') {
+                try {
+                    const res = await fetch('https://trilliantroulette.ru/api/getPrize', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            username: this.$store.state.user.name,
+                            prizeName: this.finalResult.name,
+                            quantity: this.finalResult.quantity !== undefined ? this.finalResult.quantity : null,
+                        })
                     })
-                })
-                if (!res.ok) {
-                    const errorMessage = await res.text(); // Попробуйте получить текст ошибки
-                    console.error('Ошибка:', errorMessage);
+                    if (!res.ok) {
+                        const errorMessage = await res.text(); // Попробуйте получить текст ошибки
+                        console.error('Ошибка:', errorMessage);
+                    }
+                } catch (error) {
+                    console.error('Ошибка при выполнении sendPrizes():', error);
                 }
-            } catch (error) {
-                console.error('Ошибка при выполнении sendPrizes():', error);
             }
             location.reload(true);
         },
