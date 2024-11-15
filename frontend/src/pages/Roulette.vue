@@ -171,7 +171,6 @@ export default {
         async getPrize() {
             this.isHidden = true;
             this.isButtonDisabled = false
-            console.log(this.finalResult.name)
             if(this.finalResult.name !== 'Respin') {
                 try {
                     const res = await fetch('https://trilliantroulette.ru/api/getPrize', {
@@ -213,7 +212,7 @@ export default {
                     })
                 })
                 if (!res.ok) {
-                    const errorMessage = await res.text(); // Попробуйте получить текст ошибки
+                    const errorMessage = await res.text();
                     console.error('Ошибка:', errorMessage);
                 }
             } catch (error) {

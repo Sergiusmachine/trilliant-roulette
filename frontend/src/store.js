@@ -105,22 +105,20 @@ export default createStore({
 
         // Изменение количества рулеток общая функция
         async updateQuantity({ commit, state }, newQuantity) {
-            if(state.user.quantity > 0) {
-                commit('SET_QUANTITY', newQuantity)
-                try {
-                    const res = await fetch('https://trilliantroulette.ru/api/updateQuantity', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            username: state.user.name,
-                            quantity: newQuantity
-                        })
+            commit('SET_QUANTITY', newQuantity)
+            try {
+                const res = await fetch('https://trilliantroulette.ru/api/updateQuantity', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: state.user.name,
+                        quantity: newQuantity
                     })
-                } catch(error) {
-                    console.error('Ошибка при обновлении quantity:', error);
-                } 
+                })
+            } catch(error) {
+                console.error('Ошибка при обновлении quantity:', error);
             } 
         },
 
@@ -134,10 +132,8 @@ export default createStore({
 
         // Увеличиваем количество рулеток(респин)
         async increaseQuantity({ commit, state, dispatch }) {
-            if(state.user.quantity > 0) {
-                const newQuantity = state.user.quantity + 1
-                await dispatch('updateQuantity', newQuantity)
-            }
+            const newQuantity = state.user.quantity + 1
+            await dispatch('updateQuantity', newQuantity)
         },
 
         // Проверка авторизации
