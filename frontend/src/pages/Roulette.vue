@@ -137,10 +137,7 @@ export default {
         // Крутим рулетку и получаем финальный результат
         getFinalResult() {
             this.start();
-<<<<<<< HEAD
-=======
             this.decreaseQuantity();
->>>>>>> fc1cc59e922b3064814e842446046ac5a33d4696
             this.getRandomNumber();
             this.updateRandomNumber();
             this.isButtonDisabled = true;
