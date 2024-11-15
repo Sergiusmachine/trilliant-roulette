@@ -109,6 +109,8 @@ export default {
         async submitQuantity() {
             if(this.form.quantity.length === 0 || this.form.username.length === 0) {
                 alert('Поля не должны быть пустыми!')
+            } else if (this.form.username === this.$store.state.user.name) {
+                alert('Нельзя выдать рулетки самому себе!')
             } else {
                 try {
                     const res = await fetch('https://trilliantroulette.ru/api/addQuantity', {
