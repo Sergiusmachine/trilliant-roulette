@@ -2,29 +2,31 @@ server {
         listen 80 default_server;
         listen [::]:80 default_server;
 
-        root /var/www/html;
+        root /var/www/html/trilliant-roulette/frontend/dist;
 
         index index.html index.htm index.nginx-debian.html;
 
         server_name trilliantroulette.ru www.trilliantroulette.ru;
 
         location / {
-                try_files $uri $uri/ =404;
+                try_files $uri $uri/ /index.html;
         }
 }
 
 server {
 
-        root /var/www/html;
+        root /var/www/html/trilliant-roulette/frontend/dist;
 
         index index.html index.htm index.nginx-debian.html;
     server_name trilliantroulette.ru; # managed by Certbot
 
 
         location / {
-                try_files $uri $uri/ =404;
+                try_files $uri $uri/ /index.html;
         }
-        listen [::]:443 ssl ipv6only=on; # managed by Certbot
+
+
+    listen [::]:443 ssl ipv6only=on; # managed by Certbot
     listen 443 ssl; # managed by Certbot
     ssl_certificate /etc/letsencrypt/live/trilliantroulette.ru/fullchain.pem; # managed by Certbot
     ssl_certificate_key /etc/letsencrypt/live/trilliantroulette.ru/privkey.pem; # managed by Certbot
@@ -41,5 +43,5 @@ server {
         listen 80 ;
         listen [::]:80 ;
     server_name trilliantroulette.ru;
-    return 404; # managed by Certbot
+    return 404;
 }
