@@ -80,6 +80,7 @@ export default {
     },
 
     mounted() {
+        console.log(prizes)
         this.$store.dispatch('checkAuth') // Проверяем авторизацию при монтировании
         this.$store.dispatch('getQuantity') // Подгружаем количество круток
         this.$nextTick(() => {
