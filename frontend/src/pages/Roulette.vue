@@ -136,7 +136,6 @@ export default {
 
         // Крутим рулетку и получаем финальный результат
         async getFinalResult() {
-            await this.decreaseQuantity();
             await this.$store.dispatch('getQuantity');
             this.start();
             this.isButtonDisabled = true;
@@ -156,7 +155,6 @@ export default {
 
         // Получаем быстрый результат
         async getFastResult() {
-            await this.decreaseQuantity();
             await this.$store.dispatch('getQuantity');
             this.start();
             this.isButtonDisabled = true;
