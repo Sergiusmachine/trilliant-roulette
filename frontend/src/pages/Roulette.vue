@@ -142,8 +142,8 @@ export default {
             this.finalResult = this.result;
             this.fakePrizes[96] = this.result;
             this.isActive = true;
-            if(this.finalResult.name === 'Respin') {
-                await this.increaseQuantity();
+            if(this.finalResult.name !== 'Respin') {
+                await this.decreaseQuantity();
             };
             this.playSoundOnElementChange();
             if(this.finalResult.alternative) {
@@ -160,8 +160,8 @@ export default {
             this.isButtonDisabled = true;
             this.isHidden = false
             this.finalResult = this.result;
-            if(this.finalResult.name === 'Respin') {
-                await this.increaseQuantity();
+            if(this.finalResult.name !== 'Respin') {
+                await this.decreaseQuantity();
             };
             if(this.finalResult.alternative) {
                 this.onlyGet = true
