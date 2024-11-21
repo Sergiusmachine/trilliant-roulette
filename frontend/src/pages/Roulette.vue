@@ -138,19 +138,20 @@ export default {
         async getFinalResult() {
             await this.$store.dispatch('getQuantity');
             this.start();
-            this.getRandomNumber();
-            this.updateRandomNumber();
             this.isButtonDisabled = true;
             this.finalResult = this.result;
             this.fakePrizes[96] = this.result;
             this.isActive = true;
             if(this.finalResult.name !== 'Respin') {
                 this.decreaseQuantity();
-            }
+            };
             this.playSoundOnElementChange();
             if(this.finalResult.alternative) {
                 this.onlyGet = true
-            }
+            };
+            await this.$store.dispatch('updateQuantity');
+            this.getRandomNumber();
+            this.updateRandomNumber();
         },
 
         // Получаем быстрый результат
@@ -166,6 +167,7 @@ export default {
             if(this.finalResult.alternative) {
                 this.onlyGet = true
             }
+            await this.$store.dispatch('updateQuantity');
         },
 
         // Отправка приза в базу данных
