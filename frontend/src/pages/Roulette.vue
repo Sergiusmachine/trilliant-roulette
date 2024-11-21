@@ -117,12 +117,12 @@ export default {
         },
 
         // Уменьшаем количество круток после старта рулетки
-        decreaseQuantity() {
+        async decreaseQuantity() {
             this.$store.dispatch('decreaseQuantity')
         },
 
         // Увеличение количества рулеток, когда выпал Respin
-        increaseQuantity() {
+        async increaseQuantity() {
             this.$store.dispatch('increaseQuantity')
         },
 
@@ -136,38 +136,38 @@ export default {
 
         // Крутим рулетку и получаем финальный результат
         async getFinalResult() {
+            await this.decreaseQuantity();
             await this.$store.dispatch('getQuantity');
             this.start();
             this.isButtonDisabled = true;
             this.finalResult = this.result;
             this.fakePrizes[96] = this.result;
             this.isActive = true;
-            if(this.finalResult.name !== 'Respin') {
-                this.decreaseQuantity();
+            if(this.finalResult.name === 'Respin') {
+                await this.increaseQuantity();
             };
             this.playSoundOnElementChange();
             if(this.finalResult.alternative) {
                 this.onlyGet = true
             };
-            await this.$store.dispatch('updateQuantity');
             this.getRandomNumber();
             this.updateRandomNumber();
         },
 
         // Получаем быстрый результат
         async getFastResult() {
+            await this.decreaseQuantity();
             await this.$store.dispatch('getQuantity');
             this.start();
             this.isButtonDisabled = true;
             this.isHidden = false
             this.finalResult = this.result;
-            if(this.finalResult.name !== 'Respin') {
-                this.decreaseQuantity();
-            }
+            if(this.finalResult.name === 'Respin') {
+                await this.increaseQuantity();
+            };
             if(this.finalResult.alternative) {
                 this.onlyGet = true
             }
-            await this.$store.dispatch('updateQuantity');
         },
 
         // Отправка приза в базу данных
