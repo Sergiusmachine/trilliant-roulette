@@ -51,8 +51,9 @@ app.put('/api/updateQuantity', async (req, res) => {
     try {
         const updateQuery = 'UPDATE users SET quantity = quantity - 1 WHERE username = $1 AND quantity > 0 RETURNING quantity'
         const result = await pool.query(updateQuery, [username])
+        console.log('Запрос выполнен. Результат:', result.rows);
         if (result.rows.length === 0) {
-            return res.status(400).json({ success: false, message: 'Недостаточно рулеток или пользователь не найден' });
+            return res.status(400).json({ success: false, message: 'Недостаточно рулеток' });
         }
         const newQuantity = result.rows[0].quantity;
         res.status(200).json({ success: true, quantity: newQuantity });

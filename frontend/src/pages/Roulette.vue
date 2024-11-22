@@ -118,7 +118,11 @@ export default {
 
         // Уменьшаем количество круток после старта рулетки
         async decreaseQuantity() {
-            this.$store.dispatch('decreaseQuantity')
+            try {
+                await this.$store.dispatch('decreaseQuantity')
+            } catch(error) {
+                throw error
+            }
         },
 
         // Увеличение количества рулеток, когда выпал Respin
@@ -156,11 +160,16 @@ export default {
         async getFastResult() {
             this.start();
             this.isButtonDisabled = true;
-            this.isHidden = false
             this.finalResult = this.result;
             if(this.finalResult.name !== 'Respin') {
-                await this.decreaseQuantity();
+                try {
+                    await this.decreaseQuantity();
+                } catch {
+                    alert('Недостаточно рулеток')
+                    location.reload(true)
+                }
             };
+            this.isHidden = false
             if(this.finalResult.alternative) {
                 this.onlyGet = true
             }

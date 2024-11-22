@@ -103,47 +103,27 @@ export default createStore({
             }
         },
 
-        // Изменение количества рулеток общая функция
-        // async updateQuantity({ commit, state }, newQuantity) {
-        //     commit('SET_QUANTITY', newQuantity)
-        //     try {
-        //         const res = await fetch('https://trilliantroulette.ru/api/updateQuantity', {
-        //             method: 'PUT',
-        //             headers: {
-        //                 'Content-Type': 'application/json',
-        //             },
-        //             body: JSON.stringify({
-        //                 username: state.user.name,
-        //                 quantity: newQuantity
-        //             })
-        //         })
-        //     } catch(error) {
-        //         console.error('Ошибка при обновлении quantity:', error);
-        //     } 
-        // },
-
         // Уменьшаем количество рулеток
         async decreaseQuantity({ commit, state }) {
-            if(state.user.quantity > 0) {
-                try {
-                    const res = await fetch('https://trilliantroulette.ru/api/updateQuantity', {
-                        method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            username: state.user.name,
-                        })
+            try {
+                const res = await fetch('https://trilliantroulette.ru/api/updateQuantity', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: state.user.name,
                     })
-                    const data = await res.json()
-                    if(response.ok) {
-                        commit('SET_QUANTITY', data.quantity)
-                    } else {
-                        alert('Недостаточно рулеток');
-                    }
-                } catch(error) {
-                    console.error('Ошибка при обновлении quantity:', error);
+                })
+                const data = await res.json()
+                if(res.ok) {
+                    commit('SET_QUANTITY', data.quantity)
+                } else {
+                    throw new Error('Недостаточно рулеток');
                 }
+            } catch(error) {
+                console.error('Ошибка при обновлении quantity:', error);
+                throw error
             }
         },
 
