@@ -31,7 +31,7 @@
             <form class="window" :class="{ 'add-roulette-open': isReg }">
                 <p style="font-size: 13px; color: brown; margin: 0 0 10px 0;">Внимание! Имя пользователя должно соответствовать игровому никнейму и быть в формате 'Имя Фамилия'</p>
                 <input type="text" class="input" :maxLength="30" @input="validateUsername" v-model="formReg.username" placeholder="Игровой ник нового пользователя">
-                <input type="text" class="input" :maxLength="16" v-model="formReg.password" placeholder="Временный пароль">
+                <input type="text" class="input" :maxLength="30" v-model="formReg.password" placeholder="Временный пароль">
                 <button type="button" @click="submitUser" class="add-roulette-btn">Зарегистрировать</button>
             </form> 
         </div>

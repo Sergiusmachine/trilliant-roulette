@@ -4,8 +4,8 @@
         <h1 style="margin: 60px 0;">Настройки пользователя</h1>
         <h3 class="title" @click="openWindow('isPassword')">Смена пароля <i class="pi pi-chevron-down"></i></h3>
         <form class="windows" :class="{'open-window-change-password': isPassword}">
-            <input class="input" type="text" :maxLength="16" v-model="password" placeholder="Введите новый пароль">
-            <input class="input" type="text" :maxLength="16" v-model="repeatPassword" placeholder="Повторите новый пароль">
+            <input class="input" type="text" :maxLength="30" v-model="password" placeholder="Введите новый пароль">
+            <input class="input" type="text" :maxLength="30" v-model="repeatPassword" placeholder="Повторите новый пароль">
             <button class="add-roulette-btn" type="button" @click="updatePassword">Готово</button>
         </form>
     </div>

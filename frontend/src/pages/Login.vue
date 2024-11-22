@@ -5,7 +5,7 @@
             <h1 class="title">Вход</h1>
             <form class="auth-inputs" @submit.prevent="submitForm">
                 <input v-model="name" class="input" :maxLength="30" @input="validateUsername" type="text" placeholder="Ваш ник на сервере">
-                <input v-model="password" class="input" :maxLength="16" type="password" placeholder="Пароль">
+                <input v-model="password" class="input" :maxLength="30" type="password" placeholder="Пароль">
                 <button type="submit" class="btn">Войти</button>
             </form>
         </div>
