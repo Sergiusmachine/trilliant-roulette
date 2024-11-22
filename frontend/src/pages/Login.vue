@@ -33,10 +33,10 @@ export default {
             if (this.name.length > 4 
                 && /^[a-zA-Z ]+$/.test(this.name) 
                 && this.password.length > 4 
-                && this.password.length <= 16) {
+                && this.password.length <= 30) {
                 return true;
-            } else if (this.password.length < 4 || this.password.length > 16) {
-                alert('Пароль должен быть от 4 до 16 символов');
+            } else if (this.password.length < 4 || this.password.length > 30) {
+                alert('Пароль должен быть от 4 до 30 символов');
             } else if (this.name.length === 0 || this.password.length === 0) {
                 alert('Поля не должны быть пустыми')
             } else {

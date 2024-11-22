@@ -141,9 +141,10 @@ export default {
             if(!/^[A-Z]/g.test(this.formReg.username)
             || !/^[A-Z]/g.test(this.formReg.username[this.formReg.username.indexOf(' ') + 1])) {
                 alert('Имя и Фамилия должны начинаться с заглавной буквы!')
-            } else if(this.formReg.username.length < 3
-            || this.formReg.password.length < 3) {
-                alert('Поля не должны быть пустыми!')
+            } else if(this.formReg.username.length < 4
+            || this.formReg.password.length < 4
+            || this.formReg.password.length > 30) {
+                alert('Поля не должны быть пустыми! Пароль должен быть от 4 до 30 символов')
             } else if(!this.formReg.username.includes(' ')) {
                 alert('Некорректный никнейм')
             } else {

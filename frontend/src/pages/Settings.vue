@@ -33,8 +33,10 @@ export default {
     methods: {
         // Сменить пароль
         async updatePassword() {
-            console.log(this.username, this.password)
-            if(this.password === this.repeatPassword) {
+            if (this.password === this.repeatPassword &&
+                this.password.length > 4 &&
+                this.password.length < 30
+            ) {
                 try {
                     const res = await fetch('https://trilliantroulette.ru/api/updatePassword', {
                         method: 'PUT',
@@ -56,6 +58,8 @@ export default {
                 } catch {
                     console.error('Ошибка выполнения смены пароля')
                 }
+            } else if(this.password.length < 4 || this.password.length > 30) {
+                alert('Ошибка: Пароль должен быть от 4 до 30 символов')
             } else {
                 alert('Ошибка: Пароли не совпадают')
             }
