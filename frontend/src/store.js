@@ -136,14 +136,14 @@ export default createStore({
                         })
                     })
                     const data = await res.json()
-                    if(data.quantity !== undefined) {
+                    if(response.ok) {
                         commit('SET_QUANTITY', data.quantity)
+                    } else {
+                        alert('Недостаточно рулеток');
                     }
                 } catch(error) {
                     console.error('Ошибка при обновлении quantity:', error);
                 }
-                // const newQuantity = state.user.quantity - 1
-                // await dispatch('updateQuantity', newQuantity)
             }
         },
 
