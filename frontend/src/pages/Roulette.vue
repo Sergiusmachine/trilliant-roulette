@@ -144,10 +144,15 @@ export default {
             this.isButtonDisabled = true;
             this.finalResult = this.result;
             this.fakePrizes[96] = this.result;
-            this.isActive = true;
             if(this.finalResult.name !== 'Respin') {
-                await this.decreaseQuantity();
+                try {
+                    await this.decreaseQuantity();
+                } catch {
+                    alert('Недостаточно рулеток')
+                    location.reload(true)
+                }
             };
+            this.isActive = true;
             this.playSoundOnElementChange();
             if(this.finalResult.alternative) {
                 this.onlyGet = true
@@ -165,7 +170,6 @@ export default {
                 try {
                     await this.decreaseQuantity();
                 } catch {
-                    alert('Недостаточно рулеток')
                     location.reload(true)
                 }
             };
