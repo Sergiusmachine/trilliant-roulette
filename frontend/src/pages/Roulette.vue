@@ -170,6 +170,7 @@ export default {
                 try {
                     await this.decreaseQuantity();
                 } catch {
+                    alert('Недостаточно рулеток')
                     location.reload(true)
                 }
             };
