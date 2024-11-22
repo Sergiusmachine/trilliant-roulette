@@ -159,7 +159,7 @@ export default {
             this.isButtonDisabled = true;
             this.isHidden = false
             this.finalResult = this.result;
-            if(this.finalResult.name !== 'Respin') {
+            if(this.finalResult.name !== 'Respin' && this.$store.state.user.quantity > 0) {
                 await this.decreaseQuantity();
             };
             if(this.finalResult.alternative) {
