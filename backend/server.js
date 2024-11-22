@@ -10,12 +10,20 @@ import path from 'path';
 const { Pool } = pkg;
 const app = express();
 
+// const pool = new Pool({
+//     user: process.env.DB_USER,
+//     password: process.env.DB_PASSWORD,
+//     host: process.env.DB_HOST,
+//     database: process.env.DB_NAME,
+//     port: process.env.DB_PORT,
+// });
+
 const pool = new Pool({
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    port: process.env.DB_PORT,
+    user: 'postgres',
+    password: '123123qwe',
+    host: 'trilliantroulette.ru',
+    database: 'Trilliant',
+    port: 5432,
 });
 
 app.use(cors({
@@ -47,11 +55,15 @@ app.post('/api/quantity', async (req, res) => {
 
 // Уменьшить количество рулеток
 app.put('/api/updateQuantity', async (req, res) => {
-    const { username, quantity } = req.body
+    const { username } = req.body
     try {
-        const updateQuery = 'UPDATE users SET quantity = $1 WHERE username = $2'
-        const result = await pool.query(updateQuery, [quantity, username])
-        res.sendStatus(204)
+        const updateQuery = 'UPDATE users SET quantity = quantity - 1 WHERE username = $1 AND quantity > 0 RETURNING quantity'
+        const result = await pool.query(updateQuery, [username])
+        if (result.rows.length === 0) {
+            return res.status(400).json({ success: false, message: 'Недостаточно рулеток или пользователь не найден' });
+        }
+        const newQuantity = result.rows[0].quantity;
+        res.status(200).json({ success: true, quantity: newQuantity });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Ошибка сервера' });
     }
