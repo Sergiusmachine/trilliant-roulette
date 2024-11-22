@@ -154,12 +154,11 @@ export default {
 
         // Получаем быстрый результат
         async getFastResult() {
-            await this.$store.dispatch('getQuantity');
             this.start();
             this.isButtonDisabled = true;
             this.isHidden = false
             this.finalResult = this.result;
-            if(this.finalResult.name !== 'Respin' && this.$store.state.user.quantity > 0) {
+            if(this.finalResult.name !== 'Respin') {
                 await this.decreaseQuantity();
             };
             if(this.finalResult.alternative) {
