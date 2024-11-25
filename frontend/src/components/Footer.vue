@@ -14,6 +14,7 @@ export default {
         display: flex;
         justify-content: space-around;
         align-items: center;
+        padding: 40px 0;
     }
 
     p {
