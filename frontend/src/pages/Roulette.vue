@@ -80,7 +80,7 @@ export default {
     },
 
     mounted() {
-        this.$store.dispatch('checkAuth') // Проверяем авторизацию при монтировании
+        this.$store.dispatch('checkAuth') // Проверяем авторизацию
         this.$store.dispatch('getQuantity') // Подгружаем количество круток
         this.$nextTick(() => {
             const rouletteElement = this.$refs.rouletteList;

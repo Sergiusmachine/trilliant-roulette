@@ -228,7 +228,8 @@ export default {
     .container {
         width: 80%;
         margin: 50px auto 0 auto;
-        height: 100vh;
+        min-height: 100vh;
+        max-height: max-content;
     }
 
     ul {

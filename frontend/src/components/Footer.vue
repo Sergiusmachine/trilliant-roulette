@@ -1,8 +1,8 @@
 <template>
-    <div>
+    <footer>
         <p>created by <span>John Hartman</span></p>
         <p style="text-align: center;">Нашел баг или есть предложения по улучшению сайта? <br> Discord для связи - <span>sergiusmachine</span></p>
-    </div>
+    </footer>
 </template>
 <script>
 export default {
@@ -10,7 +10,7 @@ export default {
 }
 </script>
 <style scoped>
-    div {
+    footer {
         display: flex;
         justify-content: space-around;
         align-items: center;
