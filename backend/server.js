@@ -10,20 +10,12 @@ import path from 'path';
 const { Pool } = pkg;
 const app = express();
 
-// const pool = new Pool({
-//     user: process.env.DB_USER,
-//     password: process.env.DB_PASSWORD,
-//     host: process.env.DB_HOST,
-//     database: process.env.DB_NAME,
-//     port: process.env.DB_PORT,
-// });
-
 const pool = new Pool({
-    user: 'postgres',
-    password: 'pgtrdbpw4826',
-    host: 'trilliantroulette.ru',
-    database: 'trilliant',
-    port: 5432,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
 });
 
 app.use(cors({
