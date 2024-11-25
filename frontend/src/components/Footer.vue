@@ -26,9 +26,9 @@ export default {
     }
 
     @media (max-width: 550px) {
-        div {
-            display: block;
-            text-align: center;
+        footer {
+            display: block !important; 
+            text-align: center !important;
         }
     }
 </style>
