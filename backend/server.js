@@ -40,7 +40,7 @@ async function updateTodayQuantity() {
 }
 
 // Запланировать выполнение задачи через 5 секунд
-const job = schedule.scheduleJob(new Date(Date.now() + 1000 * 5), () => {
+const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: 'Etc/UTC' }, () => {
     console.log('Running scheduled task to update todayquantity');
     updateTodayQuantity();
 });
