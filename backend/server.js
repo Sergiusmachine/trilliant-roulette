@@ -29,9 +29,10 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Обновить счетчик
 async function updateTodayQuantity() {
     try {
-        const query = 'UPDATE users SET todayquantity = 3';  // Убедитесь, что query корректно работает с вашей БД
+        const query = 'UPDATE users SET todayquantity = 3';
         await pool.query(query);
         console.log('todayquantity updated');
     } catch (err) {
@@ -39,7 +40,7 @@ async function updateTodayQuantity() {
     }
 }
 
-// Запланировать выполнение задачи через 5 секунд
+// Запланировать выполнение обновления счетчика на 00:00 по МСК
 const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: 'Etc/UTC' }, () => {
     console.log('Running scheduled task to update todayquantity');
     updateTodayQuantity();

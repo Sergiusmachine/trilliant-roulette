@@ -25,11 +25,12 @@
                 </div>
             </div>
             <div v-if="$store.state.user.authorization">
-                <h4 class="today-quantity">Доступно сегодня: 
+                <h4 :style="{opacity: $store.state.user.todayQuantity === 0 ? 0.3 : 1}" class="today-quantity">Доступно сегодня: 
                     <span :style="{color: $store.state.user.todayQuantity === 0 ? 'red' : 'green'}">
                         {{ $store.state.user.todayQuantity }}
                     </span>
                 </h4>
+                <p v-if="$store.state.user.todayQuantity < 1">Будет доступно через {{ timeLeft.hours }}:{{ timeLeft.minutes }}:{{ timeLeft.seconds }}</p>
                 
                 <div v-if="!isButtonDisabled && !$store.state.user.quantity < 1 && !$store.state.user.todayQuantity < 1">
                     <button class="start" @click="getFinalResult" >START</button>
@@ -72,6 +73,13 @@ export default {
                 {name: "Донат", url: '/assets/prizes/donate.png', bg: 'blue', minQuantity: 25, maxQuantity: 300, chance: 3},
             ],
 
+            // Таймер
+            timeLeft: {
+                hours: 0,
+                minutes: 0,
+                seconds: 0
+            },
+
             fakePrizes: [], // Данные для визуального наполнения рулетки
             result: "", // Случайные результаты для наполнения рулетки
             finalResult: '', // Финальный результат прокрутки
@@ -99,6 +107,8 @@ export default {
             }
         });
         console.log('Текущее время:', new Date().toLocaleString());
+        this.updateCountdown();
+        setInterval(this.updateCountdown, 1000);
     },
 
     methods: {
@@ -308,6 +318,17 @@ export default {
                 requestAnimationFrame(checkActiveElement);
             };
             requestAnimationFrame(checkActiveElement);
+        },
+
+        // Таймер обратного отсчета
+        updateCountdown() {
+            const now = new Date();
+            const targetTime = new Date();
+            targetTime.setHours(24, 0, 0, 0);
+            const timeLeft = targetTime - now;
+            this.timeLeft.hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            this.timeLeft.minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            this.timeLeft.seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
         },
 
         async getQuantity() {
