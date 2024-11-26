@@ -126,7 +126,7 @@ export default createStore({
                 const data = await res.json()
                 if(res.ok) {
                     commit('SET_QUANTITY', data.quantity)
-                    commit('SET_TODAY_QUANTITY', data.todayquantity)
+                    commit('SET_TODAY_QUANTITY', data.todayQuantity)
                 } else {
                     throw new Error('Недостаточно рулеток');
                 }

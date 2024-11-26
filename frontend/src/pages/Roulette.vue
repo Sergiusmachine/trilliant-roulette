@@ -26,7 +26,9 @@
             </div>
             <div v-if="$store.state.user.authorization">
                 <h4 class="today-quantity">Доступно сегодня: 
-                    <span :style="{color: $store.state.user.todayQuantity === 0 ? 'red' : 'green'}">{{ $store.state.user.todayQuantity }}</span>
+                    <span :style="{color: $store.state.user.todayQuantity === 0 ? 'red' : 'green'}">
+                        {{ $store.state.user.todayQuantity }}
+                    </span>
                 </h4>
                 
                 <div v-if="!isButtonDisabled && !$store.state.user.quantity < 1 && !$store.state.user.todayQuantity < 1">
@@ -96,6 +98,7 @@ export default {
                 rouletteElement.addEventListener('transitionend', this.onAnimationEnd);
             }
         });
+        console.log('Текущее время:', new Date().toLocaleString());
     },
 
     methods: {

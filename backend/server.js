@@ -31,14 +31,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 async function updateTodayQuantity() {
     try {
-        const query = 'UPDATE users SET todayquantity = 3';
+        const query = 'UPDATE users SET todayquantity = 3';  // Убедитесь, что query корректно работает с вашей БД
         await pool.query(query);
+        console.log('todayquantity updated');
     } catch (err) {
         console.error('Error updating todayquantity:', err.message);
     }
 }
 
-const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: 'Etc/UTC' }, () => {
+// Запланировать выполнение задачи через 5 секунд
+const job = schedule.scheduleJob(new Date(Date.now() + 1000 * 5), () => {
     console.log('Running scheduled task to update todayquantity');
     updateTodayQuantity();
 });
@@ -50,7 +52,6 @@ app.post('/api/quantity', async (req, res) => {
         const result = await pool.query('SELECT quantity, todayquantity FROM users WHERE username = $1', [username])
         if(result.rows.length > 0) {
             const { quantity, todayquantity } = result.rows[0]
-            console.log('Ответ с сервера:', { quantity, todayquantity })
             res.status(200).json({ quantity, todayquantity })
         } else {
             res.status(404).json({ error: 'Пользователь не найден' })
