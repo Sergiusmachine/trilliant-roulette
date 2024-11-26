@@ -333,6 +333,7 @@ export default {
                 this.timeLeft.hours = 0;
                 this.timeLeft.minutes = 0;
                 this.timeLeft.seconds = 0;
+                location.reload(true)
             }
         },
 
