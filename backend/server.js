@@ -71,7 +71,8 @@ app.put('/api/updateQuantity', async (req, res) => {
             return res.status(400).json({ success: false, message: 'Недостаточно рулеток' });
         }
         const newQuantity = result.rows[0].quantity;
-        res.status(200).json({ success: true, quantity: newQuantity });
+        const newTodayQuantity = result.rows[0].todayquantity;
+        res.status(200).json({ success: true, quantity: newQuantity, todayQuantity: newTodayQuantity });
     } catch (err) {
         res.status(500).json({ success: false, message: 'Ошибка сервера' });
     }
