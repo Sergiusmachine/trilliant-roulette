@@ -26,10 +26,10 @@
             </div>
             <div v-if="$store.state.user.authorization">
                 <h4 class="today-quantity">Доступно сегодня: 
-                    <span :style="{color: $store.state.user.quantity === 0 ? 'red' : 'green'}">{{ $store.state.user.todayQuantity }}</span>
+                    <span :style="{color: $store.state.user.todayQuantity === 0 ? 'red' : 'green'}">{{ $store.state.user.todayQuantity }}</span>
                 </h4>
                 
-                <div v-if="!isButtonDisabled && !$store.state.user.quantity < 1">
+                <div v-if="!isButtonDisabled && !$store.state.user.quantity < 1 && !$store.state.user.todayQuantity">
                     <button class="start" @click="getFinalResult" >START</button>
                     <button class="fast-start" @click="getFastResult">Быстрая прокрутка</button>
                 </div>
