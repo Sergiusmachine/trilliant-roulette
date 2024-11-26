@@ -329,6 +329,11 @@ export default {
             this.timeLeft.hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             this.timeLeft.minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
             this.timeLeft.seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            if (timeLeft <= 0) {
+                this.timeLeft.hours = 0;
+                this.timeLeft.minutes = 0;
+                this.timeLeft.seconds = 0;
+            }
         },
 
         async getQuantity() {
