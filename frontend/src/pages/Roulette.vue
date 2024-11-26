@@ -29,7 +29,7 @@
                     <span :style="{color: $store.state.user.todayQuantity === 0 ? 'red' : 'green'}">{{ $store.state.user.todayQuantity }}</span>
                 </h4>
                 
-                <div v-if="!isButtonDisabled && !$store.state.user.quantity < 1 && !$store.state.user.todayQuantity">
+                <div v-if="!isButtonDisabled && !$store.state.user.quantity < 1 && !$store.state.user.todayQuantity < 1">
                     <button class="start" @click="getFinalResult" >START</button>
                     <button class="fast-start" @click="getFastResult">Быстрая прокрутка</button>
                 </div>
