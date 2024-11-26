@@ -5,6 +5,7 @@ import pkg from 'pg';
 import cors from 'cors';
 import { json } from 'express';
 import path from 'path';
+import schedule from 'node-schedule'
 
 
 const { Pool } = pkg;
@@ -28,14 +29,29 @@ const __dirname = path.dirname(__filename);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+async function updateTodayQuantity() {
+    try {
+        const query = 'UPDATE users SET todayquantity = 3';
+        await pool.query(query);
+    } catch (err) {
+        console.error('Error updating todayquantity:', err.message);
+    }
+}
+
+const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: 'Etc/UTC' }, () => {
+    console.log('Running scheduled task to update todayquantity');
+    updateTodayQuantity();
+});
+
 // Вернуть количество рулеток
 app.post('/api/quantity', async (req, res) => {
     const { username } = req.body
     try {
-        const result = await pool.query('SELECT quantity FROM users WHERE username = $1', [username])
+        const result = await pool.query('SELECT quantity, todayquantity FROM users WHERE username = $1', [username])
         if(result.rows.length > 0) {
-            const quantity = result.rows[0].quantity
-            res.json({ quantity })
+            const { quantity, todayquantity } = result.rows[0]
+            console.log('Ответ с сервера:', { quantity, todayquantity })
+            res.json({ quantity, todayquantity }, 'asdada')
         } else {
             res.status(404).json({ error: 'Пользователь не найден' })
         }

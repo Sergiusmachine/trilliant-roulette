@@ -2,6 +2,11 @@
     <Header />
     <div class="parent">
         <div class="container">
+            <h4 v-if="$store.state.user.authorization" class="roulette-quantity">Количество рулеток: 
+                <span :style="{color: $store.state.user.quantity === 0 ? 'red' : 'green'}">
+                    {{ $store.state.user.quantity }}
+                </span>
+            </h4>
             <div class="scopeHidden">
                 <img class="pi-caret-down" src="/assets/logo.svg" alt="" ref="caret">
                 <ul :class="{'moveRoulette': isActive}" class="list" ref="rouletteList">
@@ -20,11 +25,10 @@
                 </div>
             </div>
             <div v-if="$store.state.user.authorization">
-                <h4 class="roulette-quantity">Количество рулеток: 
-                    <span :style="{color: $store.state.user.quantity === 0 ? 'red' : 'green'}">
-                        {{ $store.state.user.quantity }}
-                    </span>
+                <h4 class="today-quantity">Доступно сегодня: 
+                    <span>{{ $store.state.user.todayQuantity }}</span>
                 </h4>
+                
                 <div v-if="!isButtonDisabled && !$store.state.user.quantity < 1">
                     <button class="start" @click="getFinalResult" >START</button>
                     <button class="fast-start" @click="getFastResult">Быстрая прокрутка</button>
@@ -374,6 +378,11 @@ export default {
     }
 
     .roulette-quantity {
+        font-weight: 500;
+        margin-top: 0;
+    }
+
+    .today-quantity {
         font-weight: 500;
     }
 

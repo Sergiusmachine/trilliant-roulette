@@ -5,6 +5,7 @@ export default createStore({
         user: {
             name: '',
             quantity: '',
+            todayQuantity: '',
             authorization: false,
             isAdmin: false,
         },
@@ -23,6 +24,9 @@ export default createStore({
         },
         quantity(state) {
             return state.user.quantity
+        },
+        todayQuantity(state) {
+            return state.user.todayQuantity
         }
     },
 
@@ -37,7 +41,7 @@ export default createStore({
             state.user.quantity = payload
         },
         SET_IS_ADMIN(state, payload) {
-            state.user.isAdmin = payload; // Установите isAdmin
+            state.user.isAdmin = payload;
         },
         SET_ADMIN_CHECK_INTERVAL(state, intervalId) {
             state.adminCheckInterval = intervalId;
@@ -46,6 +50,9 @@ export default createStore({
             clearInterval(state.adminCheckInterval);
             state.adminCheckInterval = null;
         },
+        SET_TODAY_QUANTITY(state, payload) {
+            state.user.todayQuantity = payload
+        }
     },
 
     actions: {
@@ -95,6 +102,7 @@ export default createStore({
                 const data = await res.json()
                 if(data.quantity !== undefined) {
                     commit('SET_QUANTITY', data.quantity)
+                    commit('SET_TODAY_QUANTITY', data.todayquantity)
                 } else {
                     throw new Error('Ответ не содержит "quantity"');
                 }
