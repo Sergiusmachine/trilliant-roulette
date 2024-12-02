@@ -129,13 +129,22 @@ app.post('/api/getUserPrizes', async (req, res) => {
 
 // Удаление призов из базы данных
 app.delete('/api/deletePrize', async (req, res) => {
-    const { username } = req.body
+    const { username, checkedItems } = req.body
 
     try {
-        const data = 'DELETE FROM user_prizes WHERE username = $1'
-        await pool.query(data, [username])
+        for(let prize of checkedItems) {
+            if(prize.state) {
+                if(prize.quantity < 2) {
+                    const deleteData = 'DELETE FROM user_prizes WHERE id = $1'
+                    await pool.query(deleteData, [prize.id])
+                } else {
+                    const deleteData = 'DELETE FROM user_prizes WHERE prize_name = $1 AND username = $2'
+                    await pool.query(deleteData, [prize.prizeName, username])
+                }
+            }
+        }
         res.status(200).json({ success: true, message: 'Призы успешно удалены' });
-    } catch {
+    } catch(error) {
         console.error('Ошибка при удалении призов:', error);
         res.status(500).json({ success: false, message: 'Ошибка сервера' });
     }

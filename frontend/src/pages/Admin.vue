@@ -7,12 +7,36 @@
             <div class="window" :class="{ 'open-window': isPrizes }">
                 <ul>
                     <li v-for="(prizes, username) in groupedUserPrizes" :key="username">
-                        <h5 @click="toggleUserPrizes(username)" class="user-title">{{ username }} <i :class="{'pi pi-chevron-down pi-user': !isUserOpen(username), 'pi pi-chevron-up pi-user': isUserOpen(username)}"></i></h5>
+                        <h5 @click="toggleUserPrizes(username)" class="user-title">
+                            {{ username }}
+                            <i :class="{'pi pi-chevron-down pi-user': !isUserOpen(username), 'pi pi-chevron-up pi-user': isUserOpen(username)}"></i>
+                        </h5>
                         <ul v-show="isUserOpen(username)">
-                            <li v-for="(quantity, prizeName) in prizes" :key="prizeName">
-                                [{{ username }}]: {{ prizeName }} - {{ quantity }}
-                            </li>
-                            <button class="give-prize" @click="deletePrize(username)">Отметить выданным и удалить</button>
+                            <template v-for="(quantity, prizeName) in prizes" :key="prizeName">
+                                <li v-if="Array.isArray(quantity)" 
+                                    v-for="(subQuantity, index) in quantity" 
+                                    :key="index" 
+                                    class="prize" 
+                                    @click.stop="toggleCheckbox({ username, prize_name: prizeName, quantity: subQuantity.quantity, id: subQuantity.id })">
+                                    [{{ username }}]: {{ prizeName }} - {{ subQuantity.quantity }}
+                                    <input 
+                                        class="checkbox" 
+                                        type="checkbox" 
+                                        :id="'checkbox-' + subQuantity.id" 
+                                        :checked="isChecked(subQuantity.id)">
+                                </li>
+                                <li v-else 
+                                    class="prize" 
+                                    @click.stop="toggleCheckbox({ username, prize_name: prizeName, quantity: quantity.quantity, id: quantity.id })">
+                                    [{{ username }}]: {{ prizeName }} - {{ quantity.quantity }}
+                                    <input 
+                                        class="checkbox" 
+                                        type="checkbox" 
+                                        :id=" 'checkbox-' + quantity.id"
+                                        :checked="isChecked(quantity.id)">
+                                </li>
+                            </template>
+                            <button class="give-prize" @click="deletePrize(username)">Выдано</button>
                         </ul>
                     </li>
                 </ul>
@@ -56,11 +80,12 @@ export default {
                 password: '',
             },
             userPrizes: [], // Массив всех призов всех пользователей
-            groupedUserPrizes: {}, // Для хранения сгруппированных призов
             isPrizes: false, // Флаг окна призов
             isReg: false, // Флаг окна регистрации
             isAddRoulette: false, // Флаг для окна начисления рулетки
             openUser: null, // Для хранения текущего открытого пользователя
+            groupedUserPrizes: {}, // Сгруппированные призы по пользователям
+            checkedItems: [], // Состояние чекбоксов для каждого пользователя и приза
         }
     },
 
@@ -71,12 +96,15 @@ export default {
     methods: {
         async deletePrize(username) {
             try {
-                const res = await fetch('https://trilliantroulette.ru/api/deletePrize', {
+                const res = await fetch('http://localhost:3000/api/deletePrize', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ username })
+                    body: JSON.stringify({ 
+                        username,
+                        checkedItems: this.checkedItems
+                    })
                 })
                 location.reload(true);
             } catch(error) {
@@ -87,7 +115,7 @@ export default {
         // Получаем список всех призов из базы данных
         async getUserPrizes() {
             try {
-                const res = await fetch('https://trilliantroulette.ru/api/getUserPrizes', {
+                const res = await fetch('http://localhost:3000/api/getUserPrizes', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -113,7 +141,7 @@ export default {
                 alert('Нельзя выдать рулетки самому себе!')
             } else {
                 try {
-                    const res = await fetch('https://trilliantroulette.ru/api/addQuantity', {
+                    const res = await fetch('http://localhost:3000/api/addQuantity', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -149,7 +177,7 @@ export default {
                 alert('Некорректный никнейм')
             } else {
                 try {
-                const res = await fetch('https://trilliantroulette.ru/api/addUser', {
+                const res = await fetch('http://localhost:3000/api/addUser', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -192,17 +220,46 @@ export default {
                     acc[prize.username] = {};
                 }
                 const prizeQuantity = Number(prize.quantity);
-                if (!acc[prize.username][prize.prize_name]) {
-                    acc[prize.username][prize.prize_name] = 0;
+                if (prizeQuantity < 2) {
+                    if (!acc[prize.username][prize.prize_name]) {
+                        acc[prize.username][prize.prize_name] = [];
+                    }
+                    acc[prize.username][prize.prize_name].push({
+                        quantity: prizeQuantity,
+                        id: prize.id
+                    });
+                } else {
+                    if (!acc[prize.username][prize.prize_name]) {
+                        acc[prize.username][prize.prize_name] = {
+                            quantity: 0,
+                            id: prize.id
+                        };
+                    }
+                    acc[prize.username][prize.prize_name].quantity += prizeQuantity;
                 }
-                acc[prize.username][prize.prize_name] += prizeQuantity;
                 return acc;
             }, {});
-        },
+        }, 
 
         // Переключаем открытый пользователь
         toggleUserPrizes(username) {
             this.openUser = this.openUser === username ? null : username;
+        },
+
+        // Переключаем состояние чекбокса
+        toggleCheckbox(prize) {
+            const existing = this.checkedItems.find(item => item.id === prize.id);
+            if (existing) {
+                existing = !existing.state;
+            } else {
+                this.checkedItems.push({
+                    id: prize.id,
+                    prizeName: prize.prize_name,
+                    quantity: prize.quantity,
+                    state: true,
+                });
+            }
+            console.log(this.checkedItems)
         },
 
         // Проверяем, открыт ли пользователь
@@ -219,6 +276,11 @@ export default {
             } else if (windowType === 'isAddRoulette') {
                 this.isAddRoulette = !this.isAddRoulette;
             }
+        },
+
+        // Проверяем, отмечен ли чекбокс по id
+        isChecked(prizeId) {
+            return this.checkedItems.some(item => item.id === prizeId && item.state === true);
         },
     }
 }
@@ -266,9 +328,29 @@ export default {
     }
 
     .give-prize {
-        margin-top: 7px;
+        margin: 15px 0 15px 0;
+        border: none;
+        border-radius: 5px;
+        padding: 7px 15px;
+        font-size: 13px;
         cursor: pointer;
-        padding: 2px 10px;
+        background-color: #d3d3d3;
+        color: black;
+        transition: ease .2s all;
+    }
+
+    .prize {
+        cursor: pointer;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        user-select: none;
+    }
+
+    .checkbox {
+        width: 15px;
+        height: 15px;
     }
 
     .window {
