@@ -96,7 +96,7 @@ export default {
     methods: {
         async deletePrize(username) {
             try {
-                const res = await fetch('http://localhost:3000/api/deletePrize', {
+                const res = await fetch('https://trilliantroulette.ru/api/deletePrize', {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -115,7 +115,7 @@ export default {
         // Получаем список всех призов из базы данных
         async getUserPrizes() {
             try {
-                const res = await fetch('http://localhost:3000/api/getUserPrizes', {
+                const res = await fetch('https://trilliantroulette.ru/api/getUserPrizes', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -141,7 +141,7 @@ export default {
                 alert('Нельзя выдать рулетки самому себе!')
             } else {
                 try {
-                    const res = await fetch('http://localhost:3000/api/addQuantity', {
+                    const res = await fetch('https://trilliantroulette.ru/api/addQuantity', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -177,7 +177,7 @@ export default {
                 alert('Некорректный никнейм')
             } else {
                 try {
-                const res = await fetch('http://localhost:3000/api/addUser', {
+                const res = await fetch('https://trilliantroulette.ru/api/addUser', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
