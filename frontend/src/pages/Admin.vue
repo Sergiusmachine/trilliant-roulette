@@ -45,8 +45,11 @@
             <h3 class="title" @click="openWindow('isAddRoulette')">Начислить рулетки <i class="pi pi-chevron-down"></i></h3>
             <div class="add-roulette window" :class="{ 'add-roulette-open': isAddRoulette }">
                 <form class="">
-                    <input type="text" class="input" :maxLength="30" @input="validateUsername" v-model="form.username" placeholder="Ник игрока">
-                    <input type="number" class="input" @input="validateQuantity" :min="1" :max="10" v-model="form.quantity" placeholder="Количество рулеток">
+                    <input type="text" class="input" :maxLength="30" @input="(validateUsername(), filteredUsers())" v-model="form.username" placeholder="Ник игрока">
+                    <ul class="users-list">
+                        <li class="user" v-for="user of usersFiltered" @click="form.username = user.username, usersFiltered = []">{{ user.username }}</li>
+                    </ul>
+                    <input type="number" class="input" @input="validateQuantity" :min="1" v-model="form.quantity" placeholder="Количество рулеток">
                     <button type="button" @click="submitQuantity" class="add-roulette-btn">Начислить</button>
                 </form>
             </div>
@@ -79,6 +82,8 @@ export default {
                 username: '',
                 password: '',
             },
+            users: [], // Список всех пользователей
+            usersFiltered: [], // Отфильтрованный писок всех пользователей
             userPrizes: [], // Массив всех призов всех пользователей
             isPrizes: false, // Флаг окна призов
             isReg: false, // Флаг окна регистрации
@@ -89,11 +94,15 @@ export default {
         }
     },
 
-    mounted() {
-        this.getUserPrizes();
+    async mounted() {
+        await this.getUserPrizes();
+        await this.getUsers();
+        console.log(this.users)
+        console.log(this.form.username)
     },
 
     methods: {
+        // Удаление призов
         async deletePrize(username) {
             try {
                 const res = await fetch('https://trilliantroulette.ru/api/deletePrize', {
@@ -109,6 +118,26 @@ export default {
                 location.reload(true);
             } catch(error) {
                 console.error('Ошибка при выполнении removePrizes():', error);
+            }
+        },
+
+        // Получаем список всех зарегистрированных пользователей
+        async getUsers() {
+            try {
+                const res = await fetch('https://trilliantroulette.ru/api/getUsers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (res.ok) {
+                    this.users = await res.json();
+                } else {
+                    console.error('Ошибка при получении данных:', res.statusText);
+                }
+            } catch (error) {
+                console.error('Ошибка при получении данных:', error);
             }
         },
 
@@ -203,14 +232,23 @@ export default {
         validateQuantity() {
             if (this.form.quantity < 1) {
                 this.form.quantity = 1;
-            } else if (this.form.quantity > 10) {
-                this.form.quantity = 10;
             }
         },
 
         validateUsername() {
             this.form.username = this.form.username.replace(/[^a-zA-Z ]/g, '');
             this.formReg.username = this.formReg.username.replace(/[^a-zA-Z ]/g, '');
+        },
+
+        // Активация списка юзеров при вводе никнейма для выдачи рулетки
+        filteredUsers() {
+            if(this.form.username !== '') {
+                    this.usersFiltered = this.users.filter((item) => {
+                    return item.username.startsWith(this.form.username)
+                })
+            } else {
+                this.usersFiltered = []
+            }
         },
 
         // Суммируем quantity для одинаковых призов
@@ -407,6 +445,28 @@ export default {
 
     .add-roulette-btn:hover {
         background-color: #b9b9b9;
+    }
+
+    .users-list {
+        position: absolute;
+        width: 35%;
+        border-end-end-radius: 5px;
+        border-end-start-radius: 5px;
+        z-index: 1;
+        background-color: #1d1d1d;
+        margin-top: -19px;
+        max-height: 120px;
+        height: max-content;
+        overflow: auto;
+    }
+
+    .user {
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .user:hover {
+        background-color: #1f1f1f;
     }
 
     @media(max-width: 900px) {

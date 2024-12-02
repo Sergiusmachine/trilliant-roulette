@@ -104,6 +104,17 @@ app.post('/api/sellPrize', async (req ,res) => {
     }
 })
 
+// Получить ники всех пользователей для админки
+app.post('/api/getUsers', async (req, res) => {
+    try {
+        const data = 'SELECT username FROM users'
+        const result = await pool.query(data)
+        res.json(result.rows)
+    } catch {
+        res.status(500).json({ success: false, message: 'Ошибка сервера' })
+    }
+})
+
 // Получить список призов
 app.post('/api/getPrizeList', async (req, res) => {
     const { username } = req.body
