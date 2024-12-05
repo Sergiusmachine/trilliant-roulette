@@ -286,9 +286,9 @@ export default {
 
         // Переключаем состояние чекбокса
         toggleCheckbox(prize) {
-            const existing = this.checkedItems.find(item => item.id === prize.id);
+            let existing = this.checkedItems.find(item => item.id === prize.id);
             if (existing) {
-                existing = !existing.state;
+                existing.state = !existing.state;
             } else {
                 this.checkedItems.push({
                     id: prize.id,
