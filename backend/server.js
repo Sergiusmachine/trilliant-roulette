@@ -46,6 +46,44 @@ const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: 'Etc/UTC' }, () => {
     updateTodayQuantity();
 });
 
+// Получить админу информацию о пользователе
+app.post('/api/getInfo', async (req, res) => {
+    const { username } = req.body
+    try {
+        const result = await pool.query('SELECT username, admin, quantity, todayquantity FROM users WHERE username = $1', [username])
+        if(result.rows.length > 0) {
+            const { username, admin, quantity, todayquantity } = result.rows[0]
+            res.status(200).json({ username, admin, quantity, todayquantity })
+        } else {
+            res.status(404).json({ error: 'Пользователь не найден' })
+        }
+    } catch (error) {
+        console.error('Ошибка выполнения запроса к базе данных:', error);
+        res.status(500).json({ error: 'Ошибка сервера при получении данных' });
+    }
+})
+
+// Изменить админу ник для пользователя
+app.put('/api/changeName', async (req, res) => {
+    const { username, newUsername } = req.body;
+
+    try {
+        const result = await pool.query(
+            'UPDATE users SET username = $2 WHERE username = $1',
+            [username, newUsername]
+        );
+
+        if (result.rowCount > 0) {
+            res.status(200).json({ success: true, message: 'Ник пользователя успешно изменен' });
+        } else {
+            res.status(404).json({ success: false, message: 'Пользователь не найден' });
+        }
+    } catch (error) {
+        console.error('Ошибка при обновлении имени пользователя:', error);
+        res.status(500).json({ success: false, message: 'Пользователь с таким ником уже существует' });
+    }
+});
+
 // Вернуть количество рулеток
 app.post('/api/quantity', async (req, res) => {
     const { username } = req.body
@@ -104,23 +142,23 @@ app.post('/api/sellPrize', async (req ,res) => {
     }
 })
 
-// Получить ники всех пользователей для админки
-app.post('/api/getUsers', async (req, res) => {
+// Получить игроку список своих призов
+app.post('/api/getPrizeList', async (req, res) => {
+    const { username } = req.body
     try {
-        const data = 'SELECT username FROM users'
-        const result = await pool.query(data)
+        const data = 'SELECT * FROM user_prizes WHERE username = $1'
+        const result = await pool.query(data, [username])
         res.json(result.rows)
     } catch {
         res.status(500).json({ success: false, message: 'Ошибка сервера' })
     }
 })
 
-// Получить список призов
-app.post('/api/getPrizeList', async (req, res) => {
-    const { username } = req.body
+// Получить ники всех пользователей для админки
+app.post('/api/getUsers', async (req, res) => {
     try {
-        const data = 'SELECT * FROM user_prizes WHERE username = $1'
-        const result = await pool.query(data, [username])
+        const data = 'SELECT username FROM users'
+        const result = await pool.query(data)
         res.json(result.rows)
     } catch {
         res.status(500).json({ success: false, message: 'Ошибка сервера' })
@@ -161,18 +199,27 @@ app.delete('/api/deletePrize', async (req, res) => {
     }
 })
 
-// Начислить рулетки через админку
+// Изменить количество рулеток через админку
 app.post('/api/addQuantity', async (req, res) => {
-    const { username, quantity } = req.body
+    const { username, quantity, option } = req.body
     
     try {
-        const data = 'UPDATE users SET quantity = quantity + $1 WHERE username = $2'
+        let data;
+        if(option === 'Выдать рулетки') {
+            data = 'UPDATE users SET quantity = quantity + $1 WHERE username = $2'
+        } else if(option === 'Увеличить дневной лимит') {
+            data = 'UPDATE users SET todayquantity = todayquantity + $1 WHERE username = $2'
+        } else if(option === 'Забрать рулетки') {
+            data = 'UPDATE users SET quantity = quantity - $1 WHERE username = $2 AND quantity >= $1'
+        }
+        
         const result = await pool.query(data, [quantity, username])
         if (result.rowCount === 0) {
-            return res.status(404).json({ message: 'Пользователь не найден' });
+            return res.status(404).json({ message: 'Пользователь не найден или введены неверные значения' });
         } else {
             return res.status(200).json({ message: `Пользователю ${username} добавлено ${quantity} рулеток` })
         }
+        
     } catch {
         console.error('Ошибка при обновлении quantity:', error);
         res.status(500).json({ message: 'Ошибка сервера' });

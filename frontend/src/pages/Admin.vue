@@ -3,6 +3,7 @@
         <Header />
         <div class="container">
             <h1 style="margin-bottom: 70px;">Администрирование</h1>
+
             <h3 class="title" @click="openWindow('isPrizes')">Игроки, ожидающие выдачу призов <i class="pi pi-chevron-down"></i></h3>
             <div class="window" :class="{ 'open-window': isPrizes }">
                 <ul>
@@ -42,25 +43,64 @@
                 </ul>
             </div>
 
-            <h3 class="title" @click="openWindow('isAddRoulette')">Начислить рулетки <i class="pi pi-chevron-down"></i></h3>
+            <h3 class="title" @click="openWindow('isInfo')">Получить информацию о пользователе <i class="pi pi-chevron-down"></i></h3>
+            <div class="add-roulette window" :class="{ 'add-roulette-open': isInfo }">
+                <form style="display: flex; flex-direction: column; width: 100%;">
+                    <input type="text" class="input" :maxLength="30" @input="(validateUsername(), filteredUsers(formInfo))" v-model="formInfo.username" placeholder="Ник игрока">
+                    <ul class="users-list">
+                        <li class="user" v-for="user of usersInfoFiltered" @click="formInfo.username = user.username, usersInfoFiltered = []">{{ user.username }}</li>
+                    </ul>
+                    <div v-if="user.username.length > 0" style="margin-bottom: 20px;">
+                        <h3>Информация о пользователе {{ user.username }}:</h3>
+                        <p>Права администратора: <span :style="{color: user.admin === 'Нет' ? 'brown' : 'green'}">{{ user.admin }}</span></p>
+                        <p>Количство рулеток: <span :style="{color: user.quantity > 0 ? 'green' : 'brown'}">{{ user.quantity }}</span></p>
+                        <p>Дневной лимит на прокрутки: <span :style="{color: user.todayQuantity > 0 ? 'green' : 'brown'}">{{ user.todayQuantity }}</span></p>
+                    </div>
+                    <button type="button" @click="getUserInfo" class="add-roulette-btn">Готово</button>
+                </form>
+            </div>
+
+            <h3 class="title" @click="openWindow('isAddRoulette')">Изменить количество рулеток <i class="pi pi-chevron-down"></i></h3>
             <div class="add-roulette window" :class="{ 'add-roulette-open': isAddRoulette }">
-                <form class="">
-                    <input type="text" class="input" :maxLength="30" @input="(validateUsername(), filteredUsers())" v-model="form.username" placeholder="Ник игрока">
+                <form style="display: flex; flex-direction: column; width: 100%;">
+                    <input type="text" class="input" :maxLength="30" @input="(validateUsername(), filteredUsers(form))" v-model="form.username" placeholder="Ник игрока">
                     <ul class="users-list">
                         <li class="user" v-for="user of usersFiltered" @click="form.username = user.username, usersFiltered = []">{{ user.username }}</li>
                     </ul>
+                    <select class="add-roulette-select" v-model="form.option" name="" id="">
+                        <option>Выдать рулетки</option>
+                        <option>Увеличить дневной лимит</option>
+                        <option>Забрать рулетки</option>
+                    </select>
+                    <p style="font-size: 14px; margin: 0 0 5px 0; padding: 0; color: brown;">Укажите количество, которое хотите добавить или забрать</p>
                     <input type="number" class="input" @input="validateQuantity" :min="1" v-model="form.quantity" placeholder="Количество рулеток">
-                    <button type="button" @click="submitQuantity" class="add-roulette-btn">Начислить</button>
+                    <button type="button" @click="submitQuantity" class="add-roulette-btn">Готово</button>
+                </form>
+            </div>
+
+            <h3 class="title" @click="openWindow('isChangeName')">Обновить ник для пользователя <i class="pi pi-chevron-down"></i></h3>
+            <div class="add-roulette window" :class="{ 'add-roulette-open': isChangeName }">
+                <form style="display: flex; flex-direction: column; width: 100%;">
+                    <input type="text" class="input" :maxLength="30" @input="validateUsername(), filteredUsers(formChangeName)" v-model="formChangeName.username" placeholder="Кому хотите изменить ник?">
+                    <ul class="users-list">
+                        <li class="user" v-for="user of usersChangeNameFiltered" @click="formChangeName.username = user.username, usersChangeNameFiltered = []">{{ user.username }}</li>
+                    </ul>
+                    <p style="font-size: 13px; color: brown; margin: 0 0 10px 0;">Внимание! Имя пользователя должно соответствовать игровому никнейму и быть в формате 'Имя Фамилия'</p>
+                    <input type="text" class="input" :maxLength="30" v-model="formChangeName.newUsername" placeholder="Новый ник">
+                    <button type="button" @click="changeName" class="add-roulette-btn">Изменить</button>
                 </form>
             </div>
 
             <h3 class="title" @click="openWindow('isReg')">Зарегистрировать пользователя <i class="pi pi-chevron-down"></i></h3>
-            <form class="window" :class="{ 'add-roulette-open': isReg }">
-                <p style="font-size: 13px; color: brown; margin: 0 0 10px 0;">Внимание! Имя пользователя должно соответствовать игровому никнейму и быть в формате 'Имя Фамилия'</p>
-                <input type="text" class="input" :maxLength="30" @input="validateUsername" v-model="formReg.username" placeholder="Игровой ник нового пользователя">
-                <input type="text" class="input" :maxLength="30" v-model="formReg.password" placeholder="Временный пароль">
-                <button type="button" @click="submitUser" class="add-roulette-btn">Зарегистрировать</button>
-            </form> 
+            <div class="add-roulette window" :class="{ 'add-roulette-open': isReg }">
+                <form style="display: flex; flex-direction: column; width: 100%;">
+                    <p style="font-size: 13px; color: brown; margin: 0 0 10px 0;">Внимание! Имя пользователя должно соответствовать игровому никнейму и быть в формате 'Имя Фамилия'</p>
+                    <input type="text" class="input" :maxLength="30" @input="validateUsername" v-model="formReg.username" placeholder="Игровой ник нового пользователя">
+                    <input type="text" class="input" :maxLength="30" v-model="formReg.password" placeholder="Временный пароль">
+                    <button type="button" @click="submitUser" class="add-roulette-btn">Зарегистрировать</button>
+                </form> 
+            </div>
+            
         </div>
     </div>
 </template>
@@ -74,19 +114,37 @@ export default {
 
     data() {
         return {
+            // Форма для получения информации о пользователе
+            formInfo: {
+                username: '',
+            },
+            // Форма с начислением рулеток
             form: {
                 username: '',
                 quantity: 1,
+                option: 'Выдать рулетки',
             },
+            // Форма регистрации
             formReg: {
                 username: '',
                 password: '',
             },
+            // Форма изменения ника пользователю
+            formChangeName: {
+                username: '',
+                newUsername: '',
+            },
+
+            user: { username: '', }, // Информация о конкретном пользователе
             users: [], // Список всех пользователей
-            usersFiltered: [], // Отфильтрованный писок всех пользователей
+            usersInfoFiltered: [], // Отфильтрованный cписок всех пользователей для окна с информацией
+            usersFiltered: [], // Отфильтрованный cписок всех пользователей для окна изменения количества рулеток
+            usersChangeNameFiltered: [], // Отфильтрованный cписок всех пользователей для окна изменения ника
             userPrizes: [], // Массив всех призов всех пользователей
             isPrizes: false, // Флаг окна призов
             isReg: false, // Флаг окна регистрации
+            isInfo: false, // Флаг окна информации о пользователе
+            isChangeName: false, // Флаг окна смены ника пользователю
             isAddRoulette: false, // Флаг для окна начисления рулетки
             openUser: null, // Для хранения текущего открытого пользователя
             groupedUserPrizes: {}, // Сгруппированные призы по пользователям
@@ -97,8 +155,6 @@ export default {
     async mounted() {
         await this.getUserPrizes();
         await this.getUsers();
-        console.log(this.users)
-        console.log(this.form.username)
     },
 
     methods: {
@@ -141,6 +197,44 @@ export default {
             }
         },
 
+        // Получаем информацию о конкретном пользователе
+        async getUserInfo() {
+            if(this.formInfo.username.length === 0) {
+                alert('Поля не должны быть пустыми!')
+            } else {
+                try {
+                    const res = await fetch('https://trilliantroulette.ru/api/getInfo', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(this.formInfo)
+                    })
+                    if (res.ok) {
+                        const data = await res.json();
+                        this.user.username = data.username;
+                        if(!data.admin) {
+                            this.user.admin = 'Нет';
+                        } else {
+                            this.user.admin = 'Да';
+                        }
+                        
+                        this.user.quantity = data.quantity;
+                        this.user.todayQuantity = data.todayquantity;
+                    } else if (res.status === 404) {
+                        alert(`Пользователь ${this.formInfo.username} не найден`);
+                    } else {
+                        // Для других кодов состояния
+                        const errorData = await res.json();
+                        alert(`Ошибка: ${errorData.error || 'Неизвестная ошибка'}`);
+                    }
+                } catch(error) {
+                    console.error('Ошибка при выполнении getUserInfo():', error);
+                }
+                this.formInfo.username = ''
+            }
+        },
+
         // Получаем список всех призов из базы данных
         async getUserPrizes() {
             try {
@@ -162,7 +256,7 @@ export default {
             }
         },
 
-        // Добавить количество рулеток от админа
+        // Изменить количество рулеток
         async submitQuantity() {
             if(this.form.quantity.length === 0 || this.form.username.length === 0) {
                 alert('Поля не должны быть пустыми!')
@@ -178,10 +272,16 @@ export default {
                         body: JSON.stringify(this.form)
                     })
                     if(res.ok) {
-                        alert(`Пользователю ${this.form.username} добавлено ${this.form.quantity} рулеток`)
+                        if(this.form.option === 'Выдать рулетки') {
+                            alert(`Пользователю ${this.form.username} добавлено ${this.form.quantity} рулеток`)
+                        } else if(this.form.option === 'Увеличить дневной лимит') {
+                            alert(`Пользователю ${this.form.username} увеличен дневной лимит рулеток на ${this.form.quantity}`)
+                        } else if(this.form.option === 'Забрать рулетки') {
+                            alert(`У ${this.form.username} стало на ${this.form.quantity} рулеток меньше`)
+                        }
                     }
                     if(res.status === 404) {
-                        alert(`Пользователь ${this.form.username} не найден`)
+                        alert(`Пользователь ${this.form.username} не найден или введены некоректные значения`)
                     }
                 } catch(error) {
                     console.error('Ошибка при выполнении submitQuantity():', error);
@@ -190,7 +290,55 @@ export default {
                 this.form.username = ''
                 this.form.quantity = 1
             }
-            
+        },
+
+        // Изменить ник пользователю
+        async changeName() {
+            const { username, newUsername } = this.formChangeName;
+
+            // Проверка на пустые поля
+            if (username.trim().length === 0 || newUsername.trim().length === 0) {
+                alert('Поля "Текущий ник" и "Новый ник" не должны быть пустыми!');
+                return;
+            }
+
+            // Проверка формата имени и фамилии
+            const nameRegex = /^[A-Z][a-z]+ [A-Z][a-z]+$/;
+            if (!nameRegex.test(newUsername)) {
+                alert('Имя и Фамилия должны начинаться с заглавной буквы и быть разделены пробелом!');
+                return;
+            }
+
+            // Проверка минимальной длины
+            if (newUsername.length < 4) {
+                alert('Новый ник должен быть длиннее 4 символов!');
+                return;
+            }
+
+            try {
+                const res = await fetch('https://trilliantroulette.ru/api/changeName', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(this.formChangeName),
+                });
+
+                if (res.ok) {
+                    alert(`Ник для ${username} успешно изменен на ${newUsername}`);
+                } else if (res.status === 404) {
+                    alert(`Пользователь ${username} не найден`);
+                } else {
+                    const errorData = await res.json();
+                    alert(`Ошибка: ${errorData.message || 'Не удалось изменить ник'}`);
+                }
+            } catch (error) {
+                console.error('Ошибка при выполнении changeName():', error);
+            }
+
+            // Сброс формы
+            this.formChangeName.username = '';
+            this.formChangeName.newUsername = '';
         },
 
         // Зарегистрировать нового пользователя
@@ -238,16 +386,35 @@ export default {
         validateUsername() {
             this.form.username = this.form.username.replace(/[^a-zA-Z ]/g, '');
             this.formReg.username = this.formReg.username.replace(/[^a-zA-Z ]/g, '');
+            this.formInfo.username = this.formInfo.username.replace(/[^a-zA-Z ]/g, '');
         },
 
         // Активация списка юзеров при вводе никнейма для выдачи рулетки
-        filteredUsers() {
-            if(this.form.username !== '') {
+        filteredUsers(form) {
+            if(form === this.form) {
+                if(form.username !== '') {
                     this.usersFiltered = this.users.filter((item) => {
-                    return item.username.startsWith(this.form.username)
-                })
-            } else {
-                this.usersFiltered = []
+                        return item.username.startsWith(form.username)
+                    })
+                } else {
+                    this.usersFiltered = []
+                }
+            } else if(form === this.formChangeName) {
+                if(form.username !== '') {
+                    this.usersChangeNameFiltered = this.users.filter((item) => {
+                        return item.username.startsWith(form.username)
+                    })
+                } else {
+                    this.usersChangeNameFiltered = []
+                }
+            } else if(form === this.formInfo) {
+                if(form.username !== '') {
+                    this.usersInfoFiltered = this.users.filter((item) => {
+                        return item.username.startsWith(form.username)
+                    })
+                } else {
+                    this.usersInfoFiltered = []
+                }
             }
         },
 
@@ -313,6 +480,10 @@ export default {
                 this.isReg = !this.isReg;
             } else if (windowType === 'isAddRoulette') {
                 this.isAddRoulette = !this.isAddRoulette;
+            } else if(windowType === 'isInfo') {
+                this.isInfo = !this.isInfo;
+            } else if(windowType === 'isChangeName') {
+                this.isChangeName = !this.isChangeName;
             }
         },
 
@@ -407,10 +578,10 @@ export default {
         height: 300px;
     }
 
-    .input {
+    .input, .add-roulette-select {
         display: block;
         margin-bottom: 20px;
-        width: 80%;
+        /* width: 80%; */
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
@@ -418,7 +589,13 @@ export default {
         color: #d3d3d3;
     }
 
-    .input:focus {
+    .add-roulette-option {
+        font-size: 12px;
+        width: max-content;
+        padding: 0;
+    }
+
+    .input:focus, .add-roulette-select:focus {
         outline: none;
     }
 
@@ -433,6 +610,7 @@ export default {
     }
 
     .add-roulette-btn {
+        width: max-content;
         border: none;
         border-radius: 5px;
         padding: 7px 15px;
@@ -449,12 +627,12 @@ export default {
 
     .users-list {
         position: absolute;
-        width: 35%;
+        width: max-content;
         border-end-end-radius: 5px;
         border-end-start-radius: 5px;
         z-index: 1;
         background-color: #1d1d1d;
-        margin-top: -19px;
+        margin-top: 36px;
         max-height: 120px;
         height: max-content;
         overflow: auto;
