@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import store from './store'
 import Login from './pages/Login.vue'
 import Roulette from './pages/Roulette.vue'
-import Registration from './pages/Registration.vue'
+import Logs from './pages/Logs.vue'
 import Admin from './pages/Admin.vue'
 import Prizes from './pages/Prizes.vue'
 import Settings from './pages/Settings.vue'
@@ -30,6 +30,18 @@ const routes = [
         component: Settings,
         beforeEnter: (to, from, next) => {
             if (store.state.user.authorization) {
+                next();
+            } else {
+                next('/');
+            }
+        },
+    },
+    {
+        path: '/logs',
+        name: 'Logs',
+        component: Logs,
+        beforeEnter: (to, from, next) => {
+            if (store.state.user.authorization && store.state.user.isAdmin) {
                 next();
             } else {
                 next('/');

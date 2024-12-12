@@ -65,7 +65,9 @@ app.post('/api/getInfo', async (req, res) => {
 
 // Изменить админу ник для пользователя
 app.put('/api/changeName', async (req, res) => {
-    const { username, newUsername } = req.body;
+    const { admin, action, form } = req.body;
+    const username = form.username
+    const newUsername = form.newUsername
 
     try {
         const result = await pool.query(
@@ -74,6 +76,8 @@ app.put('/api/changeName', async (req, res) => {
         );
 
         if (result.rowCount > 0) {
+            const log = 'INSERT INTO logs (admin, action, username, newname) VALUES ($1, $2, $3, $4)'
+            await pool.query(log, [admin, action, username, newUsername])
             res.status(200).json({ success: true, message: 'Ник пользователя успешно изменен' });
         } else {
             res.status(404).json({ success: false, message: 'Пользователь не найден' });
@@ -178,17 +182,28 @@ app.post('/api/getUserPrizes', async (req, res) => {
 
 // Удаление призов из базы данных
 app.delete('/api/deletePrize', async (req, res) => {
-    const { username, checkedItems } = req.body
+    const { admin, action, username, checkedItems } = req.body
 
     try {
         for(let prize of checkedItems) {
+            const prizeName = prize.prizeName
             if(prize.state) {
                 if(prize.quantity < 2) {
+                    const quantity = prize.quantity
                     const deleteData = 'DELETE FROM user_prizes WHERE id = $1'
-                    await pool.query(deleteData, [prize.id])
+                    const result = await pool.query(deleteData, [prize.id])
+                    if(result.rowCount > 0) {
+                        const log = 'INSERT INTO logs (admin, action, username, prize_name, quantity) VALUES ($1, $2, $3, $4, $5)'
+                        await pool.query(log, [admin, action, username, prizeName, quantity])
+                    }
                 } else {
+                    const quantity = prize.quantity
                     const deleteData = 'DELETE FROM user_prizes WHERE prize_name = $1 AND username = $2'
-                    await pool.query(deleteData, [prize.prizeName, username])
+                    const result = await pool.query(deleteData, [prize.prizeName, username])
+                    if(result.rowCount > 0) {
+                        const log = 'INSERT INTO logs (admin, action, username, prize_name, quantity) VALUES ($1, $2, $3, $4, $5)'
+                        await pool.query(log, [admin, action, username, prizeName, quantity])
+                    }
                 }
             }
         }
@@ -201,7 +216,10 @@ app.delete('/api/deletePrize', async (req, res) => {
 
 // Изменить количество рулеток через админку
 app.post('/api/addQuantity', async (req, res) => {
-    const { username, quantity, option } = req.body
+    const { admin, action, form} = req.body
+    const username = form.username
+    const quantity = form.quantity
+    const option = form.option
     
     try {
         let data;
@@ -217,6 +235,8 @@ app.post('/api/addQuantity', async (req, res) => {
         if (result.rowCount === 0) {
             return res.status(404).json({ message: 'Пользователь не найден или введены неверные значения' });
         } else {
+            const log = 'INSERT INTO logs (admin, action, username, quantity) VALUES ($1, $2, $3, $4)'
+            await pool.query(log, [admin, action, username, quantity])
             return res.status(200).json({ message: `Пользователю ${username} добавлено ${quantity} рулеток` })
         }
         
@@ -228,11 +248,19 @@ app.post('/api/addQuantity', async (req, res) => {
 
 // Зарегистрировать нового пользователя
 app.post('/api/addUser', async (req, res) => {
-    const { username, password } = req.body
+    const { admin, action, form } = req.body
+    const username = form.username
+    const password = form.password
     
     try {
         const data = 'INSERT INTO users (username, password) VALUES ($1, $2)'
-        await pool.query(data, [username, password])
+        const result = await pool.query(data, [username, password])
+
+        if(result.rowCount > 0) {
+            const log = 'INSERT INTO logs (admin, action, username) VALUES ($1, $2, $3)'
+            await pool.query(log, [admin, action, username])
+        }
+
         res.status(200).json()
     } catch(error) {
         if(error.code === '23505') {
@@ -309,6 +337,16 @@ app.put('/api/updatePassword', async (req, res) => {
         res.status(200).json()
     } catch {
         res.status(500).json()
+    }
+})
+
+// Получить список логов
+app.get('/api/getLogs', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM logs')
+        res.json(result.rows);
+    } catch(err) {
+        res.status(404).json(err)
     }
 })
 

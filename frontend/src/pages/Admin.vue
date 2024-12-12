@@ -2,7 +2,11 @@
     <div>
         <Header />
         <div class="container">
-            <h1 style="margin-bottom: 70px;">Администрирование</h1>
+            <div class="title-block">
+                <h1>Администрирование</h1>
+                <router-link to="/logs" class="logs">Логи действий администрации</router-link>
+            </div>
+            
 
             <h3 class="title" @click="openWindow('isPrizes')">Игроки, ожидающие выдачу призов <i class="pi pi-chevron-down"></i></h3>
             <div class="window" :class="{ 'open-window': isPrizes }">
@@ -167,6 +171,8 @@ export default {
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ 
+                        admin: this.$store.state.user.name,
+                        action: 'Выдача приза',
                         username,
                         checkedItems: this.checkedItems
                     })
@@ -269,7 +275,17 @@ export default {
                         headers: {
                             'Content-Type': 'application/json',
                         },
-                        body: JSON.stringify(this.form)
+                        body: JSON.stringify({
+                            admin: this.$store.state.user.name,
+                            action: this.form.option === 'Выдать рулетки'
+                                ? 'Выдать рулетки'
+                                : this.form.option === 'Увеличить дневной лимит'
+                                ? 'Увеличить дневной лимит'
+                                : this.form.option === 'Забрать рулетки'
+                                ? 'Забрать рулетки'
+                                : null,
+                            form: this.form,
+                        })
                     })
                     if(res.ok) {
                         if(this.form.option === 'Выдать рулетки') {
@@ -296,20 +312,17 @@ export default {
         async changeName() {
             const { username, newUsername } = this.formChangeName;
 
-            // Проверка на пустые поля
             if (username.trim().length === 0 || newUsername.trim().length === 0) {
                 alert('Поля "Текущий ник" и "Новый ник" не должны быть пустыми!');
                 return;
             }
 
-            // Проверка формата имени и фамилии
             const nameRegex = /^[A-Z][a-z]+ [A-Z][a-z]+$/;
             if (!nameRegex.test(newUsername)) {
                 alert('Имя и Фамилия должны начинаться с заглавной буквы и быть разделены пробелом!');
                 return;
             }
 
-            // Проверка минимальной длины
             if (newUsername.length < 4) {
                 alert('Новый ник должен быть длиннее 4 символов!');
                 return;
@@ -321,7 +334,11 @@ export default {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(this.formChangeName),
+                    body: JSON.stringify({
+                        admin: this.$store.state.user.name,
+                        action: 'Смена никнейма',
+                        form: this.formChangeName,
+                    }),
                 });
 
                 if (res.ok) {
@@ -335,8 +352,6 @@ export default {
             } catch (error) {
                 console.error('Ошибка при выполнении changeName():', error);
             }
-
-            // Сброс формы
             this.formChangeName.username = '';
             this.formChangeName.newUsername = '';
         },
@@ -359,7 +374,11 @@ export default {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(this.formReg)
+                    body: JSON.stringify({
+                        admin: this.$store.state.user.name,
+                        action: 'Регистрация пользователя',
+                        form: this.formReg,
+                    })
                 })
                 console.log()
                 if(res.ok) {
@@ -503,6 +522,12 @@ export default {
         max-height: max-content;
     }
 
+    .title-block {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
     ul {
         list-style: none;
         margin: 0;
@@ -581,7 +606,6 @@ export default {
     .input, .add-roulette-select {
         display: block;
         margin-bottom: 20px;
-        /* width: 80%; */
         padding: 10px 20px;
         border: none;
         border-radius: 5px;
@@ -647,7 +671,31 @@ export default {
         background-color: #1f1f1f;
     }
 
+    .logs {
+        font-size: 14px;
+        font-weight: normal;
+        background-color: #232323;
+        border-radius: 5px;
+        height: max-content;
+        padding: 10px 20px;
+    }
+
+    .logs:hover {
+        background-color: #202020;
+    }
+
     @media(max-width: 900px) {
+        .title-block {
+            display: block;
+        }
+
+        .title-block a {
+            display: block;
+            width: max-content;
+            text-align: center;
+            margin: 30px auto;
+        }
+
         h1 {
             text-align: center;
         }
@@ -669,8 +717,15 @@ export default {
     }
 
     @media(max-width: 430px) {
+
+
         h1 {
             font-size: 26px;
+            display: block;
+        }
+
+        h1 a {
+            display: block;
         }
 
         .title {
