@@ -3,7 +3,7 @@
     <div>
         <div class="container">
             <div style="display: flex;">
-                <input class="input" type="text" name="" id="" placeholder="В разработке" disabled>
+                <input class="input" type="text" name="" id="" placeholder="Поиск в разработке" disabled>
                 <button class="button" disabled><i class="pi pi-search"></i></button>
             </div>
             <ul class="ul">
