@@ -3,8 +3,8 @@
     <div>
         <div class="container">
             <div style="display: flex;">
-                <input class="input" type="text" name="" id="" placeholder="Поиск">
-                <button class="button"><i class="pi pi-search"></i></button>
+                <input class="input" type="text" name="" id="" placeholder="В разработке" disabled>
+                <button class="button" disabled><i class="pi pi-search"></i></button>
             </div>
             <ul class="ul">
                 <li v-for="log in logs" :key="log.id">
