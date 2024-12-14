@@ -56,6 +56,7 @@
                     </ul>
                     <div v-if="user.username.length > 0" style="margin-bottom: 20px;">
                         <h3>Информация о пользователе {{ user.username }}:</h3>
+                        <p>Номер аккаунта в игре: <span>{{ user.accNumber }}</span></p>
                         <p>Права администратора: <span :style="{color: user.admin === 'Нет' ? 'brown' : 'green'}">{{ user.admin }}</span></p>
                         <p>Количство рулеток: <span :style="{color: user.quantity > 0 ? 'green' : 'brown'}">{{ user.quantity }}</span></p>
                         <p>Дневной лимит на прокрутки: <span :style="{color: user.todayQuantity > 0 ? 'green' : 'brown'}">{{ user.todayQuantity }}</span></p>
@@ -98,6 +99,7 @@
             <h3 class="title" @click="openWindow('isReg')">Зарегистрировать пользователя <i class="pi pi-chevron-down"></i></h3>
             <div class="add-roulette window" :class="{ 'add-roulette-open': isReg }">
                 <form style="display: flex; flex-direction: column; width: 100%;">
+                    <input type="number" class="input" v-model="formReg.accNumber" placeholder="Номер аккаунта в игре">
                     <p style="font-size: 13px; color: brown; margin: 0 0 10px 0;">Внимание! Имя пользователя должно соответствовать игровому никнейму и быть в формате 'Имя Фамилия'</p>
                     <input type="text" class="input" :maxLength="30" @input="validateUsername" v-model="formReg.username" placeholder="Игровой ник нового пользователя">
                     <input type="text" class="input" :maxLength="30" v-model="formReg.password" placeholder="Временный пароль">
@@ -132,6 +134,7 @@ export default {
             formReg: {
                 username: '',
                 password: '',
+                accNumber: '',
             },
             // Форма изменения ника пользователю
             formChangeName: {
@@ -227,6 +230,7 @@ export default {
                         
                         this.user.quantity = data.quantity;
                         this.user.todayQuantity = data.todayquantity;
+                        this.user.accNumber = data.accnumber
                     } else if (res.status === 404) {
                         alert(`Пользователь ${this.formInfo.username} не найден`);
                     } else {
@@ -363,7 +367,8 @@ export default {
                 alert('Имя и Фамилия должны начинаться с заглавной буквы!')
             } else if(this.formReg.username.length < 4
             || this.formReg.password.length < 4
-            || this.formReg.password.length > 30) {
+            || this.formReg.password.length > 30
+            || this.formReg.accNumber.length < 1) {
                 alert('Поля не должны быть пустыми! Пароль должен быть от 4 до 30 символов')
             } else if(!this.formReg.username.includes(' ')) {
                 alert('Некорректный никнейм')
@@ -392,6 +397,7 @@ export default {
 
                 this.formReg.username = ''
                 this.formReg.password = null
+                this.formReg.accNumber = null
             }
         },
 

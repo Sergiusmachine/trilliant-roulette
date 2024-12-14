@@ -50,10 +50,10 @@ const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: 'Etc/UTC' }, () => {
 app.post('/api/getInfo', async (req, res) => {
     const { username } = req.body
     try {
-        const result = await pool.query('SELECT username, admin, quantity, todayquantity FROM users WHERE username = $1', [username])
+        const result = await pool.query('SELECT username, admin, quantity, todayquantity, accnumber FROM users WHERE username = $1', [username])
         if(result.rows.length > 0) {
-            const { username, admin, quantity, todayquantity } = result.rows[0]
-            res.status(200).json({ username, admin, quantity, todayquantity })
+            const { username, admin, quantity, todayquantity, accnumber } = result.rows[0]
+            res.status(200).json({ username, admin, quantity, todayquantity, accnumber })
         } else {
             res.status(404).json({ error: 'Пользователь не найден' })
         }
@@ -251,10 +251,11 @@ app.post('/api/addUser', async (req, res) => {
     const { admin, action, form } = req.body
     const username = form.username
     const password = form.password
+    const accNumber = form.accNumber
     
     try {
-        const data = 'INSERT INTO users (username, password) VALUES ($1, $2)'
-        const result = await pool.query(data, [username, password])
+        const data = 'INSERT INTO users (username, password, accnumber) VALUES ($1, $2, $3)'
+        const result = await pool.query(data, [username, password, accNumber])
 
         if(result.rowCount > 0) {
             const log = 'INSERT INTO logs (admin, action, username) VALUES ($1, $2, $3)'
