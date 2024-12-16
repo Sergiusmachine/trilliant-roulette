@@ -32,9 +32,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Обновить счетчик
 async function updateTodayQuantity() {
     try {
-        const query = 'UPDATE users SET todayquantity = 3 WHERE todayquantity < 3';
+        const query = 'UPDATE users SET todayquantity = 3';
         await pool.query(query);
-        console.log('todayquantity updated');
     } catch (err) {
         console.error('Error updating todayquantity:', err.message);
     }
