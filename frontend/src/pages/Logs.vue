@@ -2,18 +2,31 @@
     <Header />
     <div>
         <div class="container">
-            <div style="display: flex;">
+            <div class="input-cont" style="display: flex; margin-bottom: 40px;">
                 <input class="input" type="text" name="" id="" placeholder="Поиск в разработке" disabled>
                 <button class="button" disabled><i class="pi pi-search"></i></button>
             </div>
-            <ul class="ul">
-                <li v-for="log in logs" :key="log.id">
+
+            <div class="date-sort">
+                <button 
+                    class="specific-date" 
+                    v-for="date in uniqueDates" 
+                    :class="{ 'date-active': date === activeDate }" 
+                    @click="setActiveDate(date)"
+                    >
+                    {{ date }}
+                </button>
+            </div>
+            
+            <ul class="ul" ref="toTop">
+                <li v-for="log in logsFiltered" :key="log.id">
                     <span class="date">[{{ dateCorrection(log.timestamp) }}]</span>
                     <span>Администратор </span>
                     <span class="adm-name"> {{ log.admin }} </span>
                     <span v-html="actionCorrection(log.action, log.username, log.quantity, log.prize_name, log.newname)"></span>
                 </li>
             </ul>
+            <button v-if='(logsFiltered.length > 25)' class="scroll-top-button" @click="scrollTop">В начало <i class="pi pi-arrow-up"></i></button>
         </div>
     </div>
 </template>
@@ -26,13 +39,15 @@ export default {
 
     async mounted() {
         await this.getLogs()
-        console.log(this.logs)
+        this.logsFiltered = this.logs
     },
 
     data() {
         return {
             logs: [], // Массив с логами
             logsFiltered: [], // Массив с отфильтрованными логами
+            uniqueDates: ['Все'], // Массив с уникальной датой(месяц, день)
+            activeDate: 'Все', // Активация кнопки с датой
         }
     },
 
@@ -40,7 +55,7 @@ export default {
         // Получаем список логов
         async getLogs() {
             try {
-                const res = await fetch('https://trilliantroulette.ru/api/getLogs')
+                const res = await fetch('http://localhost:3000/api/getLogs')
                 if(res.ok) {
                     const data = await res.json()
                     this.logs = data
@@ -60,6 +75,10 @@ export default {
             const minutes = String(dateObj.getMinutes()).padStart(2, '0');
             const seconds = String(dateObj.getSeconds()).padStart(2, '0');
 
+            if(!this.uniqueDates.includes(`${year}-${month}-${day}`)) {
+                this.uniqueDates.push(`${year}-${month}-${day}`)
+            }
+            
             const formattedDate = `${year}-${month}-${day}, ${hours}:${minutes}:${seconds}`;
             return formattedDate
         },
@@ -71,13 +90,30 @@ export default {
             } else if(action === 'Смена никнейма') {
                 return ` изменил пользователю <span style="color: #5b9870">${username}</span> никнейм на ${newName}`
             } else if(action === 'Забрать рулетки') {
-                return ` забрал у пользователя <span style="color: #5b9870">${username}</span> рулетки(${quantity})`
+                return ` забрал у пользователя <span style="color: #5b9870">${username}</span> рулетки(-${quantity})`
             } else if(action === 'Выдача приза') {
                 return ` выдал пользователю <span style="color: #5b9870">${username}</span> приз ${prizeName}(${quantity})`
             } else if(action === 'Увеличить дневной лимит') {
-                return ` добавил пользователю <span style="color: #5b9870">${username}</span> дневной лимит на прокруты(${quantity})`
+                return ` добавил пользователю <span style="color: #5b9870">${username}</span> дневной лимит на прокруты(+${quantity})`
             } else if(action === 'Выдать рулетки') {
-                return ` добавил пользователю <span style="color: #5b9870">${username}</span> рулетки(${quantity})`
+                return ` добавил пользователю <span style="color: #5b9870">${username}</span> рулетки(+${quantity})`
+            }
+        },
+
+        // Кнопка для скролла в начало списка
+        scrollTop() {
+            this.$refs.toTop.scrollIntoView({
+                block: 'start',
+                behavior: 'smooth'
+            })
+        },
+
+        setActiveDate(date) {
+            this.activeDate = date;
+            if(date !== 'Все') {
+                this.logsFiltered = this.logs.filter(item => item.timestamp.includes(date))
+            } else {
+                this.logsFiltered = this.logs
             }
         },
 
@@ -91,12 +127,13 @@ export default {
 <style scoped>
     .container {
         width: 80%;
-        min-height: 80vh;
+        height: 80vh;
         margin: 0 auto;
         margin-top: 50px;
         background-color: #1d1d1d;
         border-radius: 5px;
         padding: 50px 0 50px 0;
+        overflow: auto;
     }
 
     .ul {
@@ -153,6 +190,50 @@ export default {
         background-color: #bbbbbb;
     }
 
+    .date-sort {
+        width: 90%;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin: 0 auto;
+    }
+
+    .specific-date {
+        background-color: #222222;
+        padding: 7px 20px;
+        border-radius: 5px;
+        border: none;
+        color: rgb(226, 226, 226);
+        cursor: pointer;
+    }
+
+    .scroll-top-button {
+        display: block;
+        background-color: #222222;
+        width: 90%;
+        padding: 30px 0;
+        margin: 0 auto;
+        border: none;
+        cursor: pointer;
+        color: rgb(226, 226, 226);
+        font-size: 17px;
+    }
+
+    .pi-arrow-up {
+        margin-left: 30px;
+        font-size: 14px;
+    }
+
+    .scroll-top-button:hover {
+        background-color: #252525;
+    }
+
+    .date-active {
+        background-color: #d3d3d3;
+        color: #232323;
+    }
+
+
     @media(max-width: 600px) {
         .container {
             width: 95%;
@@ -165,6 +246,11 @@ export default {
 
         .input {
             margin: 0 10px 0 20px;
+            width: 80%;
+        }
+
+        .input-cont {
+            width: 90%;
         }
     }
 </style>
