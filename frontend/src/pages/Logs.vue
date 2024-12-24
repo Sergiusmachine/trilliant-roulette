@@ -59,7 +59,6 @@ export default {
         // Улучшаем вид даты
         dateCorrection(dateStr) {
             const dateObj = new Date(dateStr)
-            dateObj.setHours(dateObj.getHours() - 3);
             const year = dateObj.getFullYear();
             const month = String(dateObj.getMonth() + 1).padStart(2, '0');
             const day = String(dateObj.getDate()).padStart(2, '0');
