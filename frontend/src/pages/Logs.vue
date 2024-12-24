@@ -241,6 +241,11 @@ export default {
         color: #232323;
     }
 
+    @media(max-width: 1000px) {
+        .specific-date {
+            width: 50%;
+        }
+    }
 
     @media(max-width: 600px) {
         .container {
@@ -259,6 +264,11 @@ export default {
 
         .input-cont {
             width: 90%;
+        }
+
+        .specific-date {
+            margin-left: 20px;
+            width: 70%;
         }
     }
 </style>
