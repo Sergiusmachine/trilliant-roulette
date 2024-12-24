@@ -3,21 +3,12 @@
     <div>
         <div class="container">
             <div class="input-cont" style="display: flex; margin-bottom: 40px;">
-                <input class="input" type="text" name="" id="" placeholder="Поиск в разработке" disabled>
-                <button class="button" disabled><i class="pi pi-search"></i></button>
+                <select name="" id="" v-model="activeDate" @change="setActiveDate" class="specific-date">
+                    <option value="Все">Все</option>
+                    <option v-for="date in uniqueDates" :key="date" :value="date">{{ dateOptionCorrection(date) }}</option>
+                </select>
             </div>
 
-            <div class="date-sort">
-                <button 
-                    class="specific-date" 
-                    v-for="date in uniqueDates" 
-                    :class="{ 'date-active': date === activeDate }" 
-                    @click="setActiveDate(date)"
-                    >
-                    {{ date }}
-                </button>
-            </div>
-            
             <ul class="ul" ref="toTop">
                 <li v-for="log in logsFiltered" :key="log.id">
                     <span class="date">[{{ dateCorrection(log.timestamp) }}]</span>
@@ -46,7 +37,7 @@ export default {
         return {
             logs: [], // Массив с логами
             logsFiltered: [], // Массив с отфильтрованными логами
-            uniqueDates: ['Все'], // Массив с уникальной датой(месяц, день)
+            uniqueDates: [], // Массив с уникальной датой(месяц, день)
             activeDate: 'Все', // Активация кнопки с датой
         }
     },
@@ -55,7 +46,7 @@ export default {
         // Получаем список логов
         async getLogs() {
             try {
-                const res = await fetch('https://trilliantroulette.ru/api/getLogs')
+                const res = await fetch('http://localhost:3000/api/getLogs')
                 if(res.ok) {
                     const data = await res.json()
                     this.logs = data
@@ -83,6 +74,21 @@ export default {
             return formattedDate
         },
 
+        // Улучшаем вид даты в option
+        dateOptionCorrection(date) {
+            const dateObj = new Date(date);
+
+            const months = [
+            "января", "февраля", "марта", "апреля", "мая", "июня",
+            "июля", "августа", "сентября", "октября", "ноября", "декабря"
+            ];
+
+            const day = dateObj.getDate();
+            const month = months[dateObj.getMonth()];
+            const formattedDate = `${day} ${month}`;
+            return formattedDate;
+        },
+
         // Редактируем текст действия администратора
         actionCorrection(action, username, quantity, prizeName, newName) {
             if(action === 'Регистрация пользователя') {
@@ -108,19 +114,15 @@ export default {
             })
         },
 
-        setActiveDate(date) {
-            this.activeDate = date;
-            if(date !== 'Все') {
-                this.logsFiltered = this.logs.filter(item => item.timestamp.includes(date))
+        setActiveDate() {
+            if (this.activeDate !== "Все") {
+                this.logsFiltered = this.logs.filter(item =>
+                item.timestamp.includes(this.activeDate)
+                );
             } else {
-                this.logsFiltered = this.logs
+                this.logsFiltered = this.logs;
             }
         },
-
-        // Поиск строки
-        search() {
-
-        }
     }
 }
 </script>
@@ -199,12 +201,18 @@ export default {
     }
 
     .specific-date {
+        margin-left: 50px;
         background-color: #222222;
-        padding: 7px 20px;
+        padding: 12px 20px;
         border-radius: 5px;
         border: none;
         color: rgb(226, 226, 226);
         cursor: pointer;
+        width: 30%;
+    }
+
+    .specific-date:focus {
+        outline: none;
     }
 
     .scroll-top-button {
