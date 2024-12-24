@@ -46,7 +46,7 @@ export default {
         // Получаем список логов
         async getLogs() {
             try {
-                const res = await fetch('http://localhost:3000/api/getLogs')
+                const res = await fetch('https://trilliantroulette.ru/api/getLogs')
                 if(res.ok) {
                     const data = await res.json()
                     this.logs = data
