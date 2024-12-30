@@ -385,7 +385,6 @@ export default {
                         form: this.formReg,
                     })
                 })
-                console.log()
                 if(res.ok) {
                     alert(`Пользователь ${this.formReg.username} успешно зарегистрирован`)
                 } else if(res.status === 409) {
@@ -489,7 +488,6 @@ export default {
                     state: true,
                 });
             }
-            console.log(this.checkedItems)
         },
 
         // Проверяем, открыт ли пользователь

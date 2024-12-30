@@ -19,7 +19,7 @@
                     <img class="img-prize" :src="finalResult.url" alt="">
                     <p class="name-prize">{{ finalResult.quantity ? `${finalResult.name}(${finalResult.quantity})` : finalResult.name }}</p>
                     <div class="buttons">
-                        <button class="get-prize-btn" v-if="!onlySell" @click="getPrize">Получить</button>
+                        <button class="get-prize-btn" v-if="!onlySell" @click="closeWindow">Получить</button>
                         <button class="sell-prize-btn" v-if="onlyGet" @click="sellPrize">{{ finalResult.alternative ? `Продать за ${finalResult.quantity ? finalResult.alternative * finalResult.quantity : finalResult.alternative}$` : 'Получить' }}</button>
                     </div>
                 </div>
@@ -32,10 +32,12 @@
                 </h4>
                 <p v-if="$store.state.user.todayQuantity < 1">Будет доступно через {{ timeLeft.hours }}:{{ timeLeft.minutes }}:{{ timeLeft.seconds }}</p>
                 
-                <div v-if="!isButtonDisabled && !$store.state.user.quantity < 1 && !$store.state.user.todayQuantity < 1">
+                <div v-if="!isButtonDisabled && !$store.state.user.quantity < 1 && !$store.state.user.todayQuantity < 1 && !isBanned">
                     <button class="start" @click="getFinalResult" >START</button>
                     <button class="fast-start" @click="getFastResult">Быстрая прокрутка</button>
                 </div>
+
+                <h3 class="technical-work" v-if="isBanned">{{ reasonForBan }}</h3>
             </div>
         
 
@@ -85,17 +87,21 @@ export default {
             finalResult: '', // Финальный результат прокрутки
             isActive: false, // Флаг старта анимации рулетки
             isButtonDisabled: false, // Флаг блока кнопки
-            isHidden: true, // Флаг для блокировки кнопки
+            isHidden: true, // Флаг для появления окна с выигранным призом
             randomNumber: null, // Случайное число сдвига рулетки
             moveSound: null, // Звук для сдвига рулетки
             onlyGet: false, // Флаг для призов, которые нельзя обменять на валюту
             onlySell: false, // Флаг для призов, которые можно только продать
+            isBanned: false, // Проверка на блокировку прокруток
+            reasonForBan: '', // Причина бана
         }
     },
 
-    mounted() {
-        this.$store.dispatch('checkAuth') // Проверяем авторизацию
-        this.$store.dispatch('getQuantity') // Подгружаем количество круток
+    async mounted() {
+        await this.$store.dispatch('checkAuth') // Проверяем авторизацию
+        await this.$store.dispatch('getQuantity') // Подгружаем количество круток
+        await this.checkBan(); // Проверяем на блокировку прокрута рулеток
+
         this.$nextTick(() => {
             const rouletteElement = this.$refs.rouletteList;
             this.moveSound = new Audio(caseScrollSound);
@@ -106,7 +112,7 @@ export default {
                 rouletteElement.addEventListener('transitionend', this.onAnimationEnd);
             }
         });
-        console.log('Текущее время:', new Date().toLocaleString());
+        
         this.updateCountdown();
         setInterval(this.updateCountdown, 1000);
     },
@@ -164,6 +170,7 @@ export default {
             if(this.finalResult.name !== 'Respin') {
                 try {
                     await this.decreaseQuantity();
+                    await this.getPrize();
                 } catch {
                     alert('Недостаточно рулеток')
                     location.reload(true)
@@ -188,6 +195,7 @@ export default {
             if(this.finalResult.name !== 'Respin') {
                 try {
                     await this.decreaseQuantity();
+                    await this.getPrize();
                 } catch {
                     alert('Недостаточно рулеток')
                     location.reload(true)
@@ -199,10 +207,15 @@ export default {
             }
         },
 
-        // Отправка приза в базу данных
-        async getPrize() {
+        // Закрыть окно с выигранным призом
+        closeWindow() {
             this.isHidden = true;
             this.isButtonDisabled = false
+            location.reload(true)
+        },
+
+        // Отправка приза в базу данных
+        async getPrize() {
             if(this.finalResult.name !== 'Respin') {
                 try {
                     const res = await fetch('https://trilliantroulette.ru/api/getPrize', {
@@ -224,12 +237,10 @@ export default {
                     console.error('Ошибка при выполнении sendPrizes():', error);
                 }
             }
-            location.reload(true);
         },
 
         // Отправка КОМПЕНСАЦИИ за приз в базу данных
         async sellPrize() {
-            this.isHidden = true;
             try {
                 const res = await fetch('https://trilliantroulette.ru/api/sellPrize', {
                     method: 'POST',
@@ -238,7 +249,7 @@ export default {
                     },
                     body: JSON.stringify({
                         username: this.$store.state.user.name,
-                        prizeName: 'Игровая валюта',
+                        prizeName: this.finalResult.name,
                         quantity: this.finalResult.quantity !== undefined ? this.finalResult.quantity : null,
                         alternative: this.finalResult.alternative !== undefined ? this.finalResult.quantity * this.finalResult.alternative : null,
                     })
@@ -250,7 +261,7 @@ export default {
             } catch (error) {
                 console.error('Ошибка при выполнении sellPrizes():', error);
             }
-            location.reload(true);
+            this.closeWindow()
         },
 
         // Получаем рандомное значение для класса moveRoulette
@@ -351,6 +362,27 @@ export default {
                 return this.increaseQuantity()
             }
         },
+
+        // Проверка на бан
+        async checkBan() {
+            try {
+                const res = await fetch('https://trilliantroulette.ru/api/checkBan', {
+                    method: 'POST',
+                    headers: {
+                    'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username: this.$store.state.user.name }),
+                });
+                if(res.ok) {
+                    this.isBanned = true;
+                    const data = await res.json()
+                    this.reasonForBan = data.reason
+                }
+                
+            } catch (error) {
+                console.error('Ошибка при проверке на блокировку', error);
+            }
+        },
     },
 }
 </script>
@@ -365,6 +397,7 @@ export default {
     .container {
         width: 80%;
         text-align: center;
+        padding: 30px 0;
     }
 
     .scopeHidden {
@@ -536,6 +569,10 @@ export default {
 
     .bg-gold {
         background-color: #7a7720;
+    }
+
+    .technical-work {
+        color: rgb(217 48 48);
     }
 
     @media(max-width: 440px) {

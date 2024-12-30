@@ -135,12 +135,19 @@ app.post('/api/getPrize', async (req ,res) => {
 
 // Добавить компенсацию за приз в базу данных
 app.post('/api/sellPrize', async (req ,res) => {
-    const { username, prizeName, alternative } = req.body
+    const { username, prizeName, alternative, quantity } = req.body
+    console.log(username, prizeName, alternative, quantity)
     try {
+        const deleteQuery = 'DELETE FROM user_prizes WHERE username = $1 AND prize_name = $2 AND quantity = $3'
         const insertQuery = 'INSERT INTO user_prizes (username, prize_name, quantity) VALUES ($1, $2, $3)';
-        await pool.query(insertQuery, [username, prizeName, alternative]);
-        res.sendStatus(204)
+        await pool.query('BEGIN'); // Начинаем транзакцию
+        await pool.query(deleteQuery, [username, prizeName, quantity]);
+        await pool.query(insertQuery, [username, 'Игровая валюта', alternative]);
+        await pool.query('COMMIT'); // Завершаем транзакцию
+        res.sendStatus(204);
     } catch {
+        await pool.query('ROLLBACK'); // Откатываем изменения при ошибке
+        console.error(err);
         res.status(500).json({ success: false, message: 'Ошибка сервера' });
     }
 })
@@ -296,6 +303,26 @@ app.post('/api/checkAdmin', async (req, res) => {
     }
 });
 
+// Проверка на бан
+app.post('/api/checkBan', async (req, res) => {
+    const { username } = req.body;
+
+    try {
+        const result = await pool.query('SELECT * FROM ban_list WHERE username = $1', [username])
+        console.log(username)
+
+        if (result.rows.length > 0) {
+            res.status(200).json({ reason: result.rows[0].reason });
+            console.log(`Причина бана: ${result.rows[0].reason}`)
+        } else {
+            res.status(404).json({ message: 'Пользователь не находится в бан-листе' });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Ошибка при проверке на бан' });
+    }
+})
+
 // Авторизация
 app.post('/api/login', async (req, res) => {
     const { name, password } = req.body;
@@ -343,7 +370,7 @@ app.put('/api/updatePassword', async (req, res) => {
 // Получить список логов
 app.get('/api/getLogs', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM logs ORDER BY id ASC;')
+        const result = await pool.query('SELECT * FROM logs')
         res.json(result.rows);
     } catch(err) {
         res.status(404).json(err)

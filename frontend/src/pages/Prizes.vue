@@ -26,7 +26,6 @@ export default {
 
     mounted() {
         this.getPrizeList()
-        console.log(this.prizes)
     },
 
     methods: {
