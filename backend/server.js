@@ -370,7 +370,7 @@ app.put('/api/updatePassword', async (req, res) => {
 // Получить список логов
 app.get('/api/getLogs', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM logs')
+        const result = await pool.query('SELECT * FROM logs ORDER BY id ASC')
         res.json(result.rows);
     } catch(err) {
         res.status(404).json(err)
