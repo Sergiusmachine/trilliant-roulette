@@ -70,8 +70,8 @@ export default {
                 {name: "Скин Andre/Клоуна", url: '/assets/prizes/skin.png', bg: 'gray', quantity: 1, alternative: 80000, chance: 13},
                 {name: "Respin", url: '/assets/prizes/respin.png', bg: 'gray', chance: 7},
                 {name: "Игровая валюта", url: '/assets/prizes/virt.png', bg: 'blue', minQuantity: 150000, maxQuantity: 1500000, chance: 6},
-                {name: "Двухнедельный автомобиль", surname: 'Hotknife Hell', bg: 'blue', url: '/assets/prizes/hotknife.webp', quantity: 1, alternative: 500000, chance: 5},
-                {name: "Двухнедельный скин", surname: 'Normal Ped (ID: 44)', bg: 'blue', url: '/assets/prizes/normalped.webp', quantity: 1, alternative: 300000, chance: 3},
+                {name: "Hotknife Hell", bg: 'blue', url: '/assets/prizes/hotknife.webp', quantity: 1, alternative: 500000, chance: 5},
+                {name: "Normal Ped (ID: 44)", bg: 'blue', url: '/assets/prizes/normalped.webp', quantity: 1, alternative: 300000, chance: 3},
                 {name: "Донат", url: '/assets/prizes/donate.png', bg: 'blue', minQuantity: 25, maxQuantity: 300, chance: 3},
             ],
 
@@ -386,9 +386,7 @@ export default {
 
         // Выбрать имя приза
         changePrizeName(item) {
-            if(item.surname) {
-                return item.surname
-            } else if(item.quantity) {
+            if(item.quantity && item.quantity != 1) {
                 return `${item.name}(${item.quantity})`
             } else {
                 return item.name
