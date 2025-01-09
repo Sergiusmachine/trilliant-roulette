@@ -147,7 +147,6 @@ app.post('/api/getPrize', async (req ,res) => {
 // Добавить компенсацию за приз в базу данных
 app.post('/api/sellPrize', async (req ,res) => {
     const { username, prizeName, alternative, quantity } = req.body
-    console.log(username, prizeName, alternative, quantity)
     try {
         const deleteQuery = 'DELETE FROM user_prizes WHERE username = $1 AND prize_name = $2 AND quantity = $3'
         const insertQuery = 'INSERT INTO user_prizes (username, prize_name, quantity) VALUES ($1, $2, $3)';
@@ -320,11 +319,9 @@ app.post('/api/checkBan', async (req, res) => {
 
     try {
         const result = await pool.query('SELECT * FROM ban_list WHERE username = $1', [username])
-        console.log(username)
 
         if (result.rows.length > 0) {
             res.status(200).json({ reason: result.rows[0].reason });
-            console.log(`Причина бана: ${result.rows[0].reason}`)
         } else {
             res.status(404).json({ message: 'Пользователь не находится в бан-листе' });
         }
