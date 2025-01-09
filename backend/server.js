@@ -39,10 +39,21 @@ async function updateTodayQuantity() {
     }
 }
 
+// Запланированное удаление старых логов
+async function deleteOldLogs() {
+    try {
+        const query = `DELETE FROM logs WHERE timestamp < NOW() - INTERVAL '6 days'`;
+        await pool.query(query);
+    } catch (err) {
+        console.error('Error deleting old logs:', err.message);
+    }
+}
+
 // Запланировать выполнение обновления счетчика на 00:00 по МСК
 const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: 'Etc/UTC' }, () => {
     console.log('Running scheduled task to update todayquantity');
     updateTodayQuantity();
+    deleteOldLogs();
 });
 
 // Получить админу информацию о пользователе
