@@ -17,7 +17,7 @@
                 <div class="prize-window">
                     <h3 class="title-prize-window">Поздравляю! Ты выиграл</h3>
                     <img class="img-prize" :src="finalResult.url" alt="">
-                    <p class="name-prize">{{ finalResult.quantity ? `${finalResult.name}(${finalResult.quantity})` : finalResult.name }}</p>
+                    <p class="name-prize">{{ changePrizeName(finalResult) }}</p>
                     <div class="buttons">
                         <button class="get-prize-btn" v-if="!onlySell" @click="closeWindow">Получить</button>
                         <button class="sell-prize-btn" v-if="onlyGet" @click="sellPrize">{{ finalResult.alternative ? `Продать за ${finalResult.quantity ? finalResult.alternative * finalResult.quantity : finalResult.alternative}$` : 'Получить' }}</button>
@@ -62,7 +62,7 @@ export default {
     data() {
         return {
             prizes: [
-                {name: "Бриллианты", url: '/assets/prizes/brill.png', bg: 'gray', minQuantity: 10, maxQuantity: 150, alternative: 1200, chance: 20},
+            {name: "Бриллианты", url: '/assets/prizes/brill.png', bg: 'gray', minQuantity: 10, maxQuantity: 150, alternative: 1200, chance: 20},
                 {name: "Сертификаты", url: '/assets/prizes/sert.png', bg: 'gray', minQuantity: 50, maxQuantity: 500, alternative: 1200, chance: 20},
                 {name: "Maverick", url: '/assets/prizes/maver.png', bg: 'gold', quantity: 1, alternative: 8000000, chance: 2},
                 {name: "Аксессуар + покраска", url: '/assets/prizes/acs.png', bg: 'gold', quantity: 1, alternative: 5000000, chance: 1},
@@ -70,8 +70,8 @@ export default {
                 {name: "Скин Andre/Клоуна", url: '/assets/prizes/skin.png', bg: 'gray', quantity: 1, alternative: 80000, chance: 13},
                 {name: "Respin", url: '/assets/prizes/respin.png', bg: 'gray', chance: 7},
                 {name: "Игровая валюта", url: '/assets/prizes/virt.png', bg: 'blue', minQuantity: 150000, maxQuantity: 1500000, chance: 6},
-                {name: "Двухнедельный автомобиль", bg: 'blue', url: '/assets/prizes/2weekcar.png', quantity: 1, alternative: 500000, chance: 5},
-                {name: "Двухнедельный скин", bg: 'blue', url: '/assets/prizes/2weekskin.png', quantity: 1, alternative: 300000, chance: 3},
+                {name: "Двухнедельный автомобиль", surname: 'Hotknife Hell', bg: 'blue', url: '/assets/prizes/hotknife.webp', quantity: 1, alternative: 500000, chance: 5},
+                {name: "Двухнедельный скин", surname: 'Normal Ped (ID: 44)', bg: 'blue', url: '/assets/prizes/normalped.webp', quantity: 1, alternative: 300000, chance: 3},
                 {name: "Донат", url: '/assets/prizes/donate.png', bg: 'blue', minQuantity: 25, maxQuantity: 300, chance: 3},
             ],
 
@@ -381,6 +381,17 @@ export default {
                 
             } catch (error) {
                 console.error('Ошибка при проверке на блокировку', error);
+            }
+        },
+
+        // Выбрать имя приза
+        changePrizeName(item) {
+            if(item.surname) {
+                return item.surname
+            } else if(item.quantity) {
+                return `${item.name}(${item.quantity})`
+            } else {
+                return item.name
             }
         },
     },
