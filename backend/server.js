@@ -42,7 +42,7 @@ async function updateTodayQuantity() {
 // Запланированное удаление старых логов
 async function deleteOldLogs() {
     try {
-        const query = `DELETE FROM logs WHERE timestamp < NOW() - INTERVAL '6 days'`;
+        const query = `DELETE FROM logs WHERE timestamp < NOW() - INTERVAL '7 days'`;
         await pool.query(query);
     } catch (err) {
         console.error('Error deleting old logs:', err.message);
