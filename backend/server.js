@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Обновить счетчик
 async function updateTodayQuantity() {
     try {
-        const query = 'UPDATE users SET todayquantity = 3';
+        const query = 'UPDATE users SET todayquantity = CASE WHEN accnumber = 1501549 THEN 5 ELSE 3 END';
         await pool.query(query);
     } catch (err) {
         console.error('Error updating todayquantity:', err.message);
