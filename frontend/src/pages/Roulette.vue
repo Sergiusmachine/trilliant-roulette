@@ -82,6 +82,12 @@ export default {
                 seconds: 0
             },
 
+            // Логирование количество рулеток до и после прокрута
+            quantityHistory: {
+                before: null,
+                after: null,
+            },
+
             fakePrizes: [], // Данные для визуального наполнения рулетки
             result: "", // Случайные результаты для наполнения рулетки
             finalResult: '', // Финальный результат прокрутки
@@ -169,7 +175,9 @@ export default {
             this.fakePrizes[96] = this.result;
             if(this.finalResult.name !== 'Respin') {
                 try {
+                    this.quantityHistory.before = this.$store.state.user.quantity
                     await this.decreaseQuantity();
+                    this.quantityHistory.after = this.$store.state.user.quantity
                     await this.getPrize();
                 } catch {
                     alert('Недостаточно рулеток')
@@ -194,7 +202,9 @@ export default {
             this.finalResult = this.result;
             if(this.finalResult.name !== 'Respin') {
                 try {
+                    this.quantityHistory.before = this.$store.state.user.quantity
                     await this.decreaseQuantity();
+                    this.quantityHistory.after = this.$store.state.user.quantity
                     await this.getPrize();
                 } catch {
                     alert('Недостаточно рулеток')
@@ -227,10 +237,12 @@ export default {
                             username: this.$store.state.user.name,
                             prizeName: this.finalResult.name,
                             quantity: this.finalResult.quantity !== undefined ? this.finalResult.quantity : null,
+                            userQuantityBefore: this.quantityHistory.before,
+                            userQuantityAfter: this.quantityHistory.after,
                         })
                     })
                     if (!res.ok) {
-                        const errorMessage = await res.text(); // Попробуйте получить текст ошибки
+                        const errorMessage = await res.text();
                         console.error('Ошибка:', errorMessage);
                     }
                 } catch (error) {

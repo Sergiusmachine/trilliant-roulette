@@ -61,6 +61,18 @@ const routes = [
         },
     },
     {
+        path: '/userLogsPrizes',
+        name: 'UserLogsPrizes',
+        component: UserLogsPrizes,
+        beforeEnter: (to, from, next) => {
+            if (store.state.user.authorization) {
+                next();
+            } else {
+                next('/');
+            }
+        },
+    },
+    {
         path: '/login',
         name: 'Login',
         component: Login,

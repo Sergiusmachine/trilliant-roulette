@@ -134,11 +134,14 @@ app.put('/api/updateQuantity', async (req, res) => {
 
 // Добавить приз в базу данных
 app.post('/api/getPrize', async (req ,res) => {
-    const { username, prizeName, quantity } = req.body
+    const { username, prizeName, quantity, userQuantityBefore, userQuantityAfter } = req.body
     try {
         const insertQuery = 'INSERT INTO user_prizes (username, prize_name, quantity) VALUES ($1, $2, $3)';
         await pool.query(insertQuery, [username, prizeName, quantity]);
         res.sendStatus(204)
+        const logs = `INSERT INTO logs_prizes (username, prize_name, prize_quantity, user_quantity_before, user_quantity_after) VALUES ($1, $2, $3, $4, $5)`
+        await pool.query(logs, [username, prizeName, quantity, userQuantityBefore, userQuantityAfter]);
+        
     } catch {
         res.status(500).json({ success: false, message: 'Ошибка сервера' });
     }
@@ -147,12 +150,25 @@ app.post('/api/getPrize', async (req ,res) => {
 // Добавить компенсацию за приз в базу данных
 app.post('/api/sellPrize', async (req ,res) => {
     const { username, prizeName, alternative, quantity } = req.body
+    console.log(username, prizeName, alternative, quantity)
     try {
         const deleteQuery = 'DELETE FROM user_prizes WHERE username = $1 AND prize_name = $2 AND quantity = $3'
         const insertQuery = 'INSERT INTO user_prizes (username, prize_name, quantity) VALUES ($1, $2, $3)';
+        const log = `UPDATE logs_prizes
+            SET alternative = $3
+            WHERE ctid = (
+                SELECT ctid
+                FROM logs_prizes
+                WHERE username = $1 
+                AND prize_name = $2 
+                AND prize_quantity = $4
+                ORDER BY timestamp DESC
+                LIMIT 1
+            );`
         await pool.query('BEGIN'); // Начинаем транзакцию
         await pool.query(deleteQuery, [username, prizeName, quantity]);
         await pool.query(insertQuery, [username, 'Игровая валюта', alternative]);
+        await pool.query(log, [username, prizeName, alternative, quantity])
         await pool.query('COMMIT'); // Завершаем транзакцию
         res.sendStatus(204);
     } catch {
@@ -375,10 +391,21 @@ app.put('/api/updatePassword', async (req, res) => {
     }
 })
 
-// Получить список логов
+// Получить список админских логов
 app.get('/api/getLogs', async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM logs ORDER BY id ASC')
+        res.json(result.rows);
+    } catch(err) {
+        res.status(404).json(err)
+    }
+})
+
+// Получить игроку список своих логов
+app.post('/api/getUserLogsPrizes', async (req, res) => {
+    const { username } = req.body
+    try {
+        const result = await pool.query('SELECT * FROM logs_prizes WHERE username = $1 ORDER BY id ASC', [username])
         res.json(result.rows);
     } catch(err) {
         res.status(404).json(err)

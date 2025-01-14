@@ -2,7 +2,11 @@
     <div>
         <Header />
         <div class="container">
-            <h1 class="title">Призы ожидающие выдачи:</h1>
+            <div class="title-cont">
+                <h1 class="title">Призы ожидающие выдачи:</h1>
+                <router-link to="/userLogsPrizes" class="logs">История выигрышей</router-link>
+            </div>
+            
             <ul class="list">
                 <li class="element" v-for="prize in prizes">
                    {{ prize.prize_name }} {{ prize.quantity ? '-' : '' }} {{ prize.quantity }}
@@ -26,6 +30,7 @@ export default {
 
     mounted() {
         this.getPrizeList()
+        console.log(this.prizes)
     },
 
     methods: {
@@ -108,9 +113,36 @@ export default {
         font-size: 18px;
     }
 
+    .logs {
+        font-size: 14px;
+        font-weight: normal;
+        background-color: #232323;
+        border-radius: 5px;
+        height: max-content;
+        padding: 10px 20px;
+    }
+    
+    .title-cont {
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center;
+    }
+
     @media(max-width: 400px) {
         .title {
             font-size: 25px;
+        }
+    }
+
+    @media(max-width: 900px) {
+        .title-cont {
+            display: block;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .title {
+            margin-bottom: 30px;
         }
     }
 </style>
