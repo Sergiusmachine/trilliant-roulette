@@ -6,6 +6,7 @@ import Logs from './pages/Logs.vue'
 import Admin from './pages/Admin.vue'
 import Prizes from './pages/Prizes.vue'
 import Settings from './pages/Settings.vue'
+import UserLogsPrizes from './pages/UserLogsPrizes.vue';
 
 const routes = [
     {
