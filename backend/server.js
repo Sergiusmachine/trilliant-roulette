@@ -42,8 +42,10 @@ async function updateTodayQuantity() {
 // Запланированное удаление старых логов
 async function deleteOldLogs() {
     try {
-        const query = `DELETE FROM logs WHERE timestamp < NOW() - INTERVAL '7 days'`;
-        await pool.query(query);
+        const queryAdmLogs = `DELETE FROM logs WHERE timestamp < NOW() - INTERVAL '6 days'`;
+        const queryPrizesLogs = `DELETE FROM logs_prizes WHERE timestamp < NOW() - INTERVAL '6 days'`;
+        await pool.query(queryAdmLogs);
+        await pool.query(queryPrizesLogs);
     } catch (err) {
         console.error('Error deleting old logs:', err.message);
     }
@@ -150,7 +152,6 @@ app.post('/api/getPrize', async (req ,res) => {
 // Добавить компенсацию за приз в базу данных
 app.post('/api/sellPrize', async (req ,res) => {
     const { username, prizeName, alternative, quantity } = req.body
-    console.log(username, prizeName, alternative, quantity)
     try {
         const deleteQuery = 'DELETE FROM user_prizes WHERE username = $1 AND prize_name = $2 AND quantity = $3'
         const insertQuery = 'INSERT INTO user_prizes (username, prize_name, quantity) VALUES ($1, $2, $3)';
