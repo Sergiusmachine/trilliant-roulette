@@ -58,7 +58,7 @@
                         <h3>Информация о пользователе {{ user.username }}:</h3>
                         <p>Номер аккаунта в игре: <span>{{ user.accNumber }}</span></p>
                         <p>Права администратора: <span :style="{color: user.admin === 'Нет' ? 'brown' : 'green'}">{{ user.admin }}</span></p>
-                        <p>Количство рулеток: <span :style="{color: user.quantity > 0 ? 'green' : 'brown'}">{{ user.quantity }}</span></p>
+                        <p>Количество рулеток: <span :style="{color: user.quantity > 0 ? 'green' : 'brown'}">{{ user.quantity }}</span></p>
                         <p>Дневной лимит на прокрутки: <span :style="{color: user.todayQuantity > 0 ? 'green' : 'brown'}">{{ user.todayQuantity }}</span></p>
                         <router-link :to="{path: '/admLogsPrizes', query: { username: formInfo.username }}" style="text-decoration: underline;">История выигрышей</router-link>
                     </div>
