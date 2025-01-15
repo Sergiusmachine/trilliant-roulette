@@ -7,6 +7,7 @@ import Admin from './pages/Admin.vue'
 import Prizes from './pages/Prizes.vue'
 import Settings from './pages/Settings.vue'
 import UserLogsPrizes from './pages/UserLogsPrizes.vue';
+import AdmLogsPrizes from './pages/AdmLogsPrizes.vue';
 
 const routes = [
     {
@@ -67,6 +68,18 @@ const routes = [
         component: UserLogsPrizes,
         beforeEnter: (to, from, next) => {
             if (store.state.user.authorization) {
+                next();
+            } else {
+                next('/');
+            }
+        },
+    },
+    {
+        path: '/admLogsPrizes',
+        name: 'AdmLogsPrizes',
+        component: AdmLogsPrizes,
+        beforeEnter: (to, from, next) => {
+            if (store.state.user.authorization && store.state.user.isAdmin && from.name) {
                 next();
             } else {
                 next('/');
