@@ -19,10 +19,6 @@ export default {
         BaseLogs,
     },
 
-    mounted() {
-        console.log(this.$route.query.username)
-    },
-
     methods: {
         actionCorrection(log) {
             const { 
