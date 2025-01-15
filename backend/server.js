@@ -140,10 +140,9 @@ app.post('/api/getPrize', async (req ,res) => {
     try {
         const insertQuery = 'INSERT INTO user_prizes (username, prize_name, quantity) VALUES ($1, $2, $3)';
         await pool.query(insertQuery, [username, prizeName, quantity]);
-        res.sendStatus(204)
         const logs = `INSERT INTO logs_prizes (username, prize_name, prize_quantity, user_quantity_before, user_quantity_after) VALUES ($1, $2, $3, $4, $5)`
         await pool.query(logs, [username, prizeName, quantity, userQuantityBefore, userQuantityAfter]);
-        
+        res.sendStatus(204)
     } catch {
         res.status(500).json({ success: false, message: 'Ошибка сервера' });
     }
