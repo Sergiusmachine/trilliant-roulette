@@ -202,7 +202,7 @@ app.post('/api/getUsers', async (req, res) => {
 // Получить админу список призов всех игроков
 app.post('/api/getUserPrizes', async (req, res) => {
     try {
-        const data = 'SELECT * FROM user_prizes'
+        const data = 'SELECT * FROM user_prizes ORDER BY username ASC;'
         const result = await pool.query(data)
         res.json(result.rows)
     } catch {
