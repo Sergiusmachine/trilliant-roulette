@@ -77,19 +77,17 @@ app.post('/api/getInfo', async (req, res) => {
 
 // Изменить админу ник для пользователя
 app.put('/api/changeName', async (req, res) => {
-    const { admin, action, form } = req.body;
-    const username = form.username
-    const newUsername = form.newUsername
+    const { admin, action, username, newName } = req.body;
 
     try {
         const result = await pool.query(
             'UPDATE users SET username = $2 WHERE username = $1',
-            [username, newUsername]
+            [username, newName]
         );
 
         if (result.rowCount > 0) {
             const log = 'INSERT INTO logs (admin, action, username, newname) VALUES ($1, $2, $3, $4)'
-            await pool.query(log, [admin, action, username, newUsername])
+            await pool.query(log, [admin, action, username, newName])
             res.status(200).json({ success: true, message: 'Ник пользователя успешно изменен' });
         } else {
             res.status(404).json({ success: false, message: 'Пользователь не найден' });
@@ -280,10 +278,7 @@ app.post('/api/addQuantity', async (req, res) => {
 
 // Зарегистрировать нового пользователя
 app.post('/api/addUser', async (req, res) => {
-    const { admin, action, form } = req.body
-    const username = form.username
-    const password = form.password
-    const accNumber = form.accNumber
+    const { admin, action, username, password, accNumber } = req.body
     
     try {
         const data = 'INSERT INTO users (username, password, accnumber) VALUES ($1, $2, $3)'
