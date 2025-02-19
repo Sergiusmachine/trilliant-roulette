@@ -81,6 +81,8 @@
                     <p v-if="errorMessage !== ''" class="error-message">{{ errorMessage }}</p>
                 </form>
             </div>
+
+            <router-link to="/prizesList"><h3 class="title">Изменение списка призов</h3></router-link>
         </div>
     </div>
 </template>
@@ -117,7 +119,7 @@ export default {
 
             user: { username: '', }, // Информация о конкретном пользователе
             users: [], // Список всех пользователей
-            usersFiltered: [], // Отфильтрованный cписок всех пользователей для окна изменения количества рулеток
+            usersFiltered: [], // Отфильтрованный cписок всех пользователей
             userPrizes: [], // Массив всех призов всех пользователей
             showInfo: false, // Показать/скрыть информацию о пользователе            
             isPrizes: false, // Флаг окна призов

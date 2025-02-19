@@ -5,7 +5,9 @@ import pkg from 'pg';
 import cors from 'cors';
 import { json } from 'express';
 import path from 'path';
-import schedule from 'node-schedule'
+import schedule from 'node-schedule';
+import multer from 'multer';
+import fs from 'fs'
 
 
 const { Pool } = pkg;
@@ -26,8 +28,34 @@ app.use(json());
 
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
+const uploadsDir = path.resolve('../uploads');
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// Настройка Multer для сохранения файлов в папку "uploads"
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, uploadsDir); // Указание папки для загрузки
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + file.originalname); // Сохраняем файл с уникальным именем
+    }
+});
+const upload = multer({ storage: storage });
+
+// Обработчик для загрузки одного файла
+app.post('/api/upload', upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ message: 'No file uploaded' });
+    }
+    
+    const fileUrl = `https://trilliantroulette.ru/uploads/${req.file.filename}`; // !!!
+    
+    res.json({ imageUrl: fileUrl });
+});
+
+// Публичный доступ к загруженным файлам
+app.use('/uploads', express.static(uploadsDir));
 
 // Обновить счетчик
 async function updateTodayQuantity() {
@@ -57,6 +85,67 @@ const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: 'Etc/UTC' }, () => {
     updateTodayQuantity();
     deleteOldLogs();
 });
+
+// Создать админу новый приз
+app.post('/api/createPrize', async (req, res) => {
+    const {prizeName, prizeUrl, backgroundColor, minQuantity, maxQuantity, alternative, chance, admin, action} = req.body
+    
+    try {
+        const query = 'INSERT INTO prizes (name, url, color, min_quantity, max_quantity, alternative, chance) VALUES ($1, $2, $3, $4, $5, $6, $7)'
+        const result = await pool.query(query, [prizeName, prizeUrl, backgroundColor, minQuantity, maxQuantity, alternative, chance])
+        if(result.rowCount > 0) {
+            const log = 'INSERT INTO logs (admin, action, prize_name) VALUES ($1, $2, $3)'
+            await pool.query(log, [admin, action, prizeName])
+        }
+        res.sendStatus(204);
+    } catch(error) {
+        console.error(error);
+        if (error.code === '23505') {
+            return res.status(400).json({ success: false, message: 'Приз с таким названием уже существует' });
+        }
+        res.status(500).json({ success: false, message: 'Ошибка сервера' });
+    }
+})
+
+// Полностью удалить приз
+app.post('/api/destructionPrize', async (req, res) => {
+    const {prizeName, prizeUrl, admin, action} = req.body
+    try {
+        const query = 'DELETE FROM prizes WHERE name = $1'
+        const result = await pool.query(query, [prizeName])
+        
+        const fileName = path.basename(prizeUrl)
+        const imgPath = path.resolve('../uploads', fileName);
+        
+        fs.unlink(imgPath, (err) => {
+            if (err) {
+                console.error('Ошибка при удалении файла:', err);
+                return;
+            }
+            console.log('Файл успешно удален:', imgPath);
+        })
+
+        if(result.rowCount > 0) {
+            const log = 'INSERT INTO logs (admin, action, prize_name) VALUES ($1, $2, $3)'
+            await pool.query(log, [admin, action, prizeName])
+        }
+
+        res.sendStatus(204);
+    } catch(error) {
+        console.error(error);
+        res.status(500).json({ success: false, message: 'Ошибка сервера' });
+    }
+})
+
+// Получить админу список всех существующих призов
+app.get('/api/getAllPrizes', async (req ,res) => {
+    try {
+        const result = await pool.query('SELECT * FROM prizes')
+        res.json(result.rows)
+    } catch {
+        res.status(500).json({ success: false, message: 'Ошибка сервера' })
+    }
+})
 
 // Получить админу информацию о пользователе
 app.post('/api/getInfo', async (req, res) => {
