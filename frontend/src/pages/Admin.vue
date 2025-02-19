@@ -82,7 +82,7 @@
                 </form>
             </div>
 
-            <router-link to="/prizesList"><h3 class="title">Изменение списка призов</h3></router-link>
+            <!-- <router-link to="/prizesList"><h3 class="title">Изменение списка призов</h3></router-link> -->
         </div>
     </div>
 </template>
