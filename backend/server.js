@@ -28,7 +28,7 @@ app.use(json());
 
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
-const uploadsDir = path.resolve(__dirname, '../uploads');
+const uploadsDir = '/var/www/html/trilliant-roulette/uploads';
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -49,7 +49,7 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    const fileUrl = `/uploads/${req.file.filename}`;
+    const fileUrl = `https://trilliantroulette.ru/uploads/${req.file.filename}`;
     
     res.json({ imageUrl: fileUrl });
 });
