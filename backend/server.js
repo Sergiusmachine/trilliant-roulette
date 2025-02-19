@@ -49,10 +49,12 @@ app.post('/api/upload', upload.single('file'), (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
     }
     
-    const fileUrl = `https://trilliantroulette.ru/uploads/${req.file.filename}`; // !!!
+    const fileUrl = `/uploads/${req.file.filename}`;
     
     res.json({ imageUrl: fileUrl });
 });
+
+console.log('Папка для загрузки файлов:', uploadsDir);
 
 // Публичный доступ к загруженным файлам
 app.use('/uploads', express.static(uploadsDir));
