@@ -28,7 +28,7 @@ app.use(json());
 
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
-const uploadsDir = path.resolve('../uploads');
+const uploadsDir = path.join(__dirname, '../uploads');
 
 app.use(express.static(path.join(__dirname, 'public')));
 
