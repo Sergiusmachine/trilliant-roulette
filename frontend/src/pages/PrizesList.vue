@@ -31,8 +31,8 @@
                     <p class="warning" v-if="warnings.prizeImage">Загрузите изображение</p>
                     <!-- <input style="padding: 20px 0 0 0;" type="file" accept="image/*" @change="addImage"> -->
                     <p style="margin-bottom: 10px;">Рекомендуемый размер картинки 300x300</p>
-                    <p style="margin-top: 0;">Загрузите изображение на фотохостинг (например Imgur). Нажимаете ПКМ по картинке, после чего "Открыть изображение в новой вкладке" и вставляем сюда прямую ссылку</p>
-                    <input class="input" type="text" v-model="formCreatePrize.imageUrl" placeholder="Ссылка на изображение">
+                    <p style="margin-top: 0;">Загрузите изображение на фотохостинг (например Imgur). Нажимаете ПКМ по картинке, после чего "Копировать адрес изображения"</p>
+                    <input class="input" type="text" v-model="formCreatePrize.imageUrl" placeholder="Прямая ссылка на изображение">
                     <ul class="view-roulette" v-if="formCreatePrize.imageUrl !== ''">
                         <li class="view-element" :style="{backgroundColor: formCreatePrize.backgroundColor}"><img class="view-img" :src="formCreatePrize.imageUrl" alt=""></li>
                     </ul>
