@@ -29,10 +29,12 @@
                 <p style="margin: 0; font-size: 20px; color: brown;">*</p>
                 <div style="padding: 15px 30px; border: 1px solid #494949; border-radius: 5px; display: flex; flex-direction: column;">
                     <p class="warning" v-if="warnings.prizeImage">Загрузите изображение</p>
-                    <p style="margin: 0;">Выберите квадратное изображение. Рекомендуемый размер 300x300:</p>
-                    <input style="padding: 20px 0 0 0;" type="file" accept="image/*" @change="addImage">
-                    <ul class="view-roulette" v-if="formCreatePrize.image !== null">
-                        <li class="view-element" :style="{backgroundColor: formCreatePrize.backgroundColor}"><img class="view-img" :src="formCreatePrize.imagePreview" alt=""></li>
+                    <!-- <input style="padding: 20px 0 0 0;" type="file" accept="image/*" @change="addImage"> -->
+                    <p style="margin-bottom: 10px;">Рекомендуемый размер картинки 300x300</p>
+                    <p style="margin-top: 0;">Загрузите изображение на фотохостинг (например Imgur). Нажимаете ПКМ по картинке, после чего "Открыть изображение в новой вкладке" и вставляем сюда прямую ссылку</p>
+                    <input class="input" type="text" v-model="formCreatePrize.imageUrl" placeholder="Ссылка на изображение">
+                    <ul class="view-roulette" v-if="formCreatePrize.imageUrl !== ''">
+                        <li class="view-element" :style="{backgroundColor: formCreatePrize.backgroundColor}"><img class="view-img" :src="formCreatePrize.imageUrl" alt=""></li>
                     </ul>
 
                     <div style="display: flex; align-items: center; margin-top: 30px;">
@@ -43,7 +45,7 @@
                         <div v-for="background in backgroundsStorage" class="recent-backgrounds" :style="{backgroundColor: background}" @click="formCreatePrize.backgroundColor = background"></div>
                     </p>
                 </div>
-                
+
                 <button class="create-prize-button" type="button" @click="createPrize">Добавить приз</button>
             </form>
 
@@ -107,8 +109,8 @@ export default {
                 maxQuantity: null,
                 alternative: null,
                 backgroundColor: 'black',
-                image: null,
-                imagePreview: '',
+                // image: null,
+                // imagePreview: '',
                 imageUrl: '',
             },
 
@@ -175,7 +177,7 @@ export default {
                         this.backgroundsStorage.shift()
                     }
                     localStorage.setItem('backgroundsStorage', JSON.stringify(this.backgroundsStorage))
-                    await this.uploadImage()
+                    // await this.uploadImage()
                     location.reload(true)
                 } else {
                     const errorMessage = await res.json()
@@ -270,42 +272,42 @@ export default {
         },
 
         // Добавление и предпросмотр картинки
-        addImage(event) {
-            this.formCreatePrize.image = event.target.files[0]
-            const reader = new FileReader
-            reader.onload = (e) => {
-                this.formCreatePrize.imagePreview = e.target.result
-            }
-            reader.readAsDataURL(this.formCreatePrize.image)
-        },
+        // addImage(event) {
+        //     this.formCreatePrize.image = event.target.files[0]
+        //     const reader = new FileReader
+        //     reader.onload = (e) => {
+        //         this.formCreatePrize.imagePreview = e.target.result
+        //     }
+        //     reader.readAsDataURL(this.formCreatePrize.image)
+        // },
 
         // Загрузка картинки
-        async uploadImage() {
-            if(this.formCreatePrize.image === null) {
-                this.warnings.prizeImage = true
-                return
-            }
+        // async uploadImage() {
+        //     if(this.formCreatePrize.image === null) {
+        //         this.warnings.prizeImage = true
+        //         return
+        //     }
 
-            const formData = new FormData()
-            formData.append("file", this.formCreatePrize.image)
+        //     const formData = new FormData()
+        //     formData.append("file", this.formCreatePrize.image)
 
-            try {
-                const response = await fetch("https://trilliantroulette.ru/api/upload", {
-                    method: "POST",
-                    body: formData,
-                })
+        //     try {
+        //         const response = await fetch("https://trilliantroulette.ru/api/upload", {
+        //             method: "POST",
+        //             body: formData,
+        //         })
 
-                const result = await response.json();
+        //         const result = await response.json();
 
-                if(response.ok) {
-                    this.formCreatePrize.imageUrl = result.imageUrl
-                } else {
-                    alert(`Ошибка загрузки изображения`)
-                }
-            } catch(error) {
-                alert('Произошла ошибка' + ' ' + error)
-            }
-        },
+        //         if(response.ok) {
+        //             this.formCreatePrize.imageUrl = result.imageUrl
+        //         } else {
+        //             alert(`Ошибка загрузки изображения`)
+        //         }
+        //     } catch(error) {
+        //         alert('Произошла ошибка' + ' ' + error)
+        //     }
+        // },
     }
 }
 </script>

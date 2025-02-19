@@ -6,8 +6,8 @@ import cors from 'cors';
 import { json } from 'express';
 import path from 'path';
 import schedule from 'node-schedule';
-import multer from 'multer';
-import fs from 'fs'
+// import multer from 'multer';
+// import fs from 'fs'
 
 
 const { Pool } = pkg;
@@ -29,36 +29,36 @@ app.use(json());
 // Получаем путь к текущему файлу
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
-const uploadsDir = path.resolve('../uploads');
+// const uploadsDir = path.resolve('../uploads');
 
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Настройка Multer для сохранения файлов в папку "uploads"
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadsDir); // Указание папки для загрузки
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + file.originalname); // Сохраняем файл с уникальным именем
-    }
-});
-const upload = multer({ storage: storage });
+// const storage = multer.diskStorage({
+//     destination: (req, file, cb) => {
+//         cb(null, uploadsDir); // Указание папки для загрузки
+//     },
+//     filename: (req, file, cb) => {
+//         cb(null, Date.now() + file.originalname); // Сохраняем файл с уникальным именем
+//     }
+// });
+// const upload = multer({ storage: storage });
 
 // Обработчик для загрузки одного файла
-app.post('/api/upload', upload.single('file'), (req, res) => {
-    if (!req.file) {
-        return res.status(400).json({ message: 'No file uploaded' });
-    }
+// app.post('/api/upload', upload.single('file'), (req, res) => {
+//     if (!req.file) {
+//         return res.status(400).json({ message: 'No file uploaded' });
+//     }
     
-    const fileUrl = `https://trilliantroulette.ru/uploads/${req.file.filename}`; // !!!
+//     const fileUrl = `https://trilliantroulette.ru/uploads/${req.file.filename}`; // !!!
     
-    res.json({ imageUrl: fileUrl });
-});
+//     res.json({ imageUrl: fileUrl });
+// });
 
-console.log(`Папка для загрузки файлов: ${uploadsDir}`)
+// console.log(`Папка для загрузки файлов: ${uploadsDir}`)
 
 // Публичный доступ к загруженным файлам
-app.use('/uploads', express.static(uploadsDir));
+// app.use('/uploads', express.static(uploadsDir));
 
 // Обновить счетчик
 async function updateTodayQuantity() {
@@ -112,21 +112,21 @@ app.post('/api/createPrize', async (req, res) => {
 
 // Полностью удалить приз
 app.post('/api/destructionPrize', async (req, res) => {
-    const {prizeName, prizeUrl, admin, action} = req.body
+    const {prizeName, admin, action} = req.body
     try {
         const query = 'DELETE FROM prizes WHERE name = $1'
         const result = await pool.query(query, [prizeName])
         
-        const fileName = path.basename(prizeUrl)
-        const imgPath = path.resolve('../uploads', fileName);
+        // const fileName = path.basename(prizeUrl)
+        // const imgPath = path.resolve('../uploads', fileName);
         
-        fs.unlink(imgPath, (err) => {
-            if (err) {
-                console.error('Ошибка при удалении файла:', err);
-                return;
-            }
-            console.log('Файл успешно удален:', imgPath);
-        })
+        // fs.unlink(imgPath, (err) => {
+        //     if (err) {
+        //         console.error('Ошибка при удалении файла:', err);
+        //         return;
+        //     }
+        //     console.log('Файл успешно удален:', imgPath);
+        // })
 
         if(result.rowCount > 0) {
             const log = 'INSERT INTO logs (admin, action, prize_name) VALUES ($1, $2, $3)'
