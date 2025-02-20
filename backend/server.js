@@ -242,7 +242,12 @@ app.post('/api/getPrize', async (req ,res) => {
 app.post('/api/sellPrize', async (req ,res) => {
     const { username, prizeName, alternative, quantity } = req.body
     try {
-        const deleteQuery = 'DELETE FROM user_prizes WHERE username = $1 AND prize_name = $2 AND quantity = $3'
+        const deleteQuery = `DELETE FROM user_prizes
+        WHERE id = (
+            SELECT id FROM user_prizes
+            WHERE username = $1 AND prize_name = $2 AND quantity = $3
+            LIMIT 1
+        );`
         const insertQuery = 'INSERT INTO user_prizes (username, prize_name, quantity) VALUES ($1, $2, $3)';
         const log = `UPDATE logs_prizes
             SET alternative = $3
