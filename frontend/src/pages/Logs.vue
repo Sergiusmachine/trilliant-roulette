@@ -31,6 +31,8 @@ export default {
                 return `Администратор <span style="color: #5b9870">${admin}</span> создал новый приз <span style="color: #5b9870">${prizeName}</span>`
             } else if(action === 'Удаление приза') { 
                 return `Администратор <span style="color: #5b9870">${admin}</span> удалил приз <span style="color: #5b9870">${prizeName}</span>`
+            } else if(action === 'Сбросить пароль') { 
+                return `Администратор <span style="color: #5b9870">${admin}</span> сбросил пароль пользователю <span style="color: #5b9870">${username}</span>`
             }
         },
     }

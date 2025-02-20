@@ -397,6 +397,28 @@ app.post('/api/addUser', async (req, res) => {
     }
 })
 
+// Сбросить пароль игроку
+app.post('/api/resetPassword', async (req, res) => {
+    try {
+        const { admin, action, username } = req.body
+        const updatePassword = `UPDATE users SET password = $1 WHERE username = $2`
+        
+        const result = await pool.query(updatePassword, ['password', username])
+
+        if (result.rowCount === 0) {
+            return res.status(404).send("Пользователь не найден");
+        }
+
+        if(result.rowCount > 0) {
+            const log = 'INSERT INTO logs (admin, action, username) VALUES ($1, $2, $3)'
+            await pool.query(log, [admin, action, username])
+        }
+        res.status(200).send()
+    } catch {
+        res.status(500).send()
+    }
+})
+
 // Проверка прав администратора
 app.post('/api/checkAdmin', async (req, res) => {
     const { username } = req.body;

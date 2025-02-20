@@ -62,6 +62,7 @@
                         <option>Информация</option>
                         <option>Зарегистрировать</option>
                         <option>Изменить ник</option>
+                        <option>Сбросить пароль</option>
                     </select>
                     <p v-if="showRouletteField" style="font-size: 14px; margin: 0 0 5px 0; padding: 0; color: brown;">Укажите количество, которое хотите добавить или забрать</p>
                     <input v-if="showRouletteField" type="number" class="input-menu" @input="validateQuantity" :min="1" v-model="form.quantity" placeholder="Количество рулеток">
@@ -281,6 +282,34 @@ export default {
 
                 this.form.username = ''
                 this.form.quantity = 1
+            }
+        },
+
+        // Сбросить пароль игроку
+        async resetPassword() {
+            try {
+                const res = await fetch('http://localhost:3000/api/resetPassword', {
+                    method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            admin: this.$store.state.user.name,
+                            action: this.form.option,
+                            username: this.form.username,
+                        })
+                })
+
+                if (res.ok) {
+                    alert(`Пользователю ${this.form.username} установлен дефолтный пароль`);
+                } else if (res.status === 404) {
+                    alert("Пользователь не найден");
+                } else {
+                    alert(`Ошибка: ${res.status} - ${await res.text()}`);
+                }
+                
+            } catch(error) {
+                console.error('Ошибка при сбросе пароля', error);
             }
         },
 
