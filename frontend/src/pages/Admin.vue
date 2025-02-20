@@ -288,7 +288,7 @@ export default {
         // Сбросить пароль игроку
         async resetPassword() {
             try {
-                const res = await fetch('http://localhost:3000/api/resetPassword', {
+                const res = await fetch('https://trilliantroulette.ru/api/resetPassword', {
                     method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
