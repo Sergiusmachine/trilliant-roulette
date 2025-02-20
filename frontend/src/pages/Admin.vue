@@ -336,6 +336,10 @@ export default {
             if(this.form.option === 'Информация') {
                 this.getUserInfo()
             }
+
+            if(this.form.option === 'Сбросить пароль') {
+                this.resetPassword()
+            }
         },
 
         // Изменить ник пользователю
