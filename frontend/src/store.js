@@ -8,27 +8,16 @@ export default createStore({
             todayQuantity: '',
             authorization: false,
             isAdmin: false,
+            isBanned: false,
         },
-        adminCheckInterval: null,
-    },
-
-    getters: {
-        isAuthenticated(state) {
-            return state.user.authorization;
-        },
-        username(state) {
-            return state.user.name;
-        },
-        admin(state) {
-            return state.user.isAdmin;
-        },
-        quantity(state) {
-            return state.user.quantity
-        },
-        todayQuantity(state) {
-            return state.user.todayQuantity
+        notification: {
+            message: 'message',
+            condition: undefined,
+            show: false,
         }
     },
+
+    getters: {},
 
     mutations: {
         SET_AUTHORIZATION(state, payload) {
@@ -43,16 +32,14 @@ export default createStore({
         SET_IS_ADMIN(state, payload) {
             state.user.isAdmin = payload;
         },
-        SET_ADMIN_CHECK_INTERVAL(state, intervalId) {
-            state.adminCheckInterval = intervalId;
-        },
-        CLEAR_ADMIN_CHECK_INTERVAL(state) {
-            clearInterval(state.adminCheckInterval);
-            state.adminCheckInterval = null;
-        },
         SET_TODAY_QUANTITY(state, payload) {
             state.user.todayQuantity = payload
-        }
+        },
+        SET_NOTFICATION_MESSAGE(state, { message, condition, show }) {
+            state.notification.message = message;
+            state.notification.condition = condition;
+            state.notification.show = show;
+        },
     },
 
     actions: {
@@ -180,6 +167,11 @@ export default createStore({
             // Удаляем данные из localStorage
             localStorage.removeItem('username');
             localStorage.removeItem('isAuthenticated');
-        }, 
+        },
+
+        // Управление уведомлениями
+        notification({ commit }, { message, condition, show }) {
+            commit('SET_NOTFICATION_MESSAGE', { message, condition, show });
+        },
     },
 });

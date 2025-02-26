@@ -206,11 +206,11 @@ export default {
                         this.user.accNumber = data.accnumber
                         this.showInfo = true
                     } else if (res.status === 404) {
-                        this.errorMessage = `Пользователь ${this.form.username} не найден`;
+                        this.errorMessage = `Пользователь ${this.form.username} не найден`
                     } else {
                         // Для других кодов состояния
                         const errorData = await res.json();
-                        alert(`Ошибка: ${errorData.error || 'Неизвестная ошибка'}`);
+                        this.errorMessage = `Ошибка: ${errorData.error || 'Неизвестная ошибка'}`
                     }
                 } catch(error) {
                     console.error('Ошибка при выполнении getUserInfo():', error);
@@ -301,11 +301,11 @@ export default {
                 })
 
                 if (res.ok) {
-                    alert(`Пользователю ${this.form.username} установлен дефолтный пароль`);
+                    this.succesMessage = `Пользователю ${this.form.username} установлен дефолтный пароль`
                 } else if (res.status === 404) {
-                    alert("Пользователь не найден");
+                    this.errorMessage = `Пользователь ${this.form.username} не найден`
                 } else {
-                    alert(`Ошибка: ${res.status} - ${await res.text()}`);
+                    this.errorMessage = `${res.status} - ${await res.text()}`
                 }
                 
             } catch(error) {

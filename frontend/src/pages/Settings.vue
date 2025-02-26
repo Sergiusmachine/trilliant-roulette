@@ -9,12 +9,14 @@
             <button class="add-roulette-btn" type="button" @click="updatePassword">Готово</button>
         </form>
     </div>
+    <Notification />
 </template>
 <script>
 import Header from '../components/Header.vue'
+import Notification from '../components/Notification.vue';
 export default {
     components: {
-        Header,
+        Header, Notification
     },
 
     data() {
@@ -50,18 +52,33 @@ export default {
                     })
 
                     if(res.ok) {
-                        alert('Пароль изменен') 
+                        this.$store.dispatch('notification', {
+                            message: 'Пароль изменен',
+                            condition: true,
+                            show: true,
+                        })
                     } else {
-                        console.log(res.json())
-                        alert('Ошибка выполнения смены пароля')
+                        this.$store.dispatch('notification', {
+                            message: 'Ошибка выполнения смены пароля',
+                            condition: false,
+                            show: true,
+                        })
                     }
                 } catch {
                     console.error('Ошибка выполнения смены пароля')
                 }
             } else if(this.password.length < 4 || this.password.length > 30) {
-                alert('Ошибка: Пароль должен быть от 4 до 30 символов')
+                this.$store.dispatch('notification', {
+                    message: 'Пароль должен быть от 4 до 30 символов',
+                    condition: false,
+                    show: true,
+                })
             } else {
-                alert('Ошибка: Пароли не совпадают')
+                this.$store.dispatch('notification', {
+                    message: 'Пароли не совпадают',
+                    condition: false,
+                    show: true,
+                })
             }
 
             this.password = ''

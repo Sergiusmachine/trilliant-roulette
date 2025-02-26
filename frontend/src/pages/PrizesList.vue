@@ -11,28 +11,39 @@
             <form class="new-prize" v-if="isCreatePrizeWindow">
                 <h3 style="margin-bottom: 30px;">Создание приза</h3>
 
-                <p style="margin: 0; font-size: 20px; color: brown;" v-if="!warnings.prizeName">*</p>
+                <p style="margin: 0; font-size: 20px; color: brown;">*</p>
                 <p class="warning" v-if="warnings.prizeName">Название приза не должно быть пустым</p>
                 <input class="input" type="text" placeholder="Введите название приза" v-model="formCreatePrize.name">
 
-                <p style="margin: 0; font-size: 20px; color: brown;" v-if="!warnings.prizeChance">*</p>
+                <p style="margin: 0; font-size: 20px; color: brown;">*</p>
                 <p class="warning" v-if="warnings.prizeChance">Введите корректное значение вероятности выпадения приза</p>
                 <input class="input" type="number" placeholder="Вероятность выпадения" v-model="formCreatePrize.chance">
 
                 <p class="warning" style="color: #fff;">Если у приза нет min и max количества, то оставьте оба поля пустыми</p>
-                <input class="input" type="number" placeholder="Минимальное количество" v-model="formCreatePrize.minQuantity">
-                <input class="input" type="number" placeholder="Максимальное количество" v-model="formCreatePrize.maxQuantity">
+                <p class="warning" v-if="warnings.prizeQuantity">Минимальное количество недолжно превышать максимальное</p>
+                <p class="warning" v-if="warnings.prizeQuantityNull">Оба поля должны быть или пустыми, или заполненными</p>
+                <input class="input" type="number" placeholder="Минимальное количество"
+                    v-model="formCreatePrize.minQuantity"
+                    @input="formCreatePrize.minQuantity = $event.target.value === '' ? null : Number($event.target.value)"
+                >
+                <input class="input" type="number" placeholder="Максимальное количество"
+                    v-model="formCreatePrize.maxQuantity"
+                    @input="formCreatePrize.maxQuantity = $event.target.value === '' ? null : Number($event.target.value)"
+                >
 
                 <p class="warning" style="color: #fff;">Если компенсации нет, то оставьте поле пустым</p>
-                <input class="input" type="number" placeholder="Укажите компенсацию за 1 единицу приза" v-model="formCreatePrize.alternative">
+                <input class="input" type="number" placeholder="Укажите компенсацию за 1 единицу приза"
+                    v-model="formCreatePrize.alternative" 
+                    @input="formCreatePrize.alternative = $event.target.value === '' ? null : Number($event.target.value)"
+                >
 
                 <p style="margin: 0; font-size: 20px; color: brown;">*</p>
                 <div style="padding: 15px 30px; border: 1px solid #494949; border-radius: 5px; display: flex; flex-direction: column;">
                     <p class="warning" v-if="warnings.prizeImage">Загрузите изображение</p>
                     <!-- <input style="padding: 20px 0 0 0;" type="file" accept="image/*" @change="addImage"> -->
                     <p style="margin-bottom: 10px;">Рекомендуемый размер картинки 300x300</p>
-                    <p style="margin-top: 0;">Загрузите изображение на фотохостинг (например Imgur). Нажимаете ПКМ по картинке, после чего "Копировать адрес изображения"</p>
-                    <input class="input" type="text" v-model="formCreatePrize.imageUrl" placeholder="Прямая ссылка на изображение">
+                    <p style="margin-top: 0;">Загрузите изображение на фотохостинг (например Imgur). Нажимаете ПКМ по картинке, после чего "Открыть изображение в новой вкладке" и вставляем сюда прямую ссылку</p>
+                    <input class="input" type="text" v-model="formCreatePrize.imageUrl" placeholder="Ссылка на изображение">
                     <ul class="view-roulette" v-if="formCreatePrize.imageUrl !== ''">
                         <li class="view-element" :style="{backgroundColor: formCreatePrize.backgroundColor}"><img class="view-img" :src="formCreatePrize.imageUrl" alt=""></li>
                     </ul>
@@ -81,20 +92,20 @@
                     
                 </div>
             </div>
-            
         </div>
     </div>
-    
+    <Notification />
 </template>
 <script>
 import Header from '../components/Header.vue';
+import Notification from '../components/Notification.vue';
 export default {
     async mounted() {
         await this.getPrizeList()
     },
 
     components: {
-        Header,
+        Header, Notification,
     },
 
     data() {
@@ -126,11 +137,14 @@ export default {
                 prizeName: false,
                 prizeChance: false,
                 prizeImage: false,
+                prizeQuantity: false,
+                prizeQuantityNull: false,
             },
 
             isCreatePrizeWindow: false, // Показать/скрыть форму добавления приза
             isConfirmationWindow: false, // Показать/скрыть окно подтверждения удаления приза
             backgroundsStorage: [], // Память используемых фонов при создании приза
+            isNotification: false,
         }
     },
 
@@ -181,10 +195,10 @@ export default {
                     location.reload(true)
                 } else {
                     const errorMessage = await res.json()
-                    alert(errorMessage.message)
+                    this.$store.dispatch('notification', {message: errorMessage.message, condition: false, show: true})
                 }
             } catch(error) {
-                alert('Ошибка при создании приза')
+                this.$store.dispatch('notification', {message: 'Ошибка при создании приза', condition: false, show: true})
             }
             
         },
@@ -196,23 +210,45 @@ export default {
             this.warnings.prizeName = false;
             this.warnings.prizeChance = false;
             this.warnings.prizeImage = false;
+            this.warnings.prizeQuantity = false;
+            this.warnings.prizeQuantityNull = false;
 
             // Название приза
             if(this.formCreatePrize.name.length < 1) {
                 this.warnings.prizeName = !this.warnings.prizeName
                 isValid = false
+                window.scrollTo({ top: 100, behavior: 'smooth' });
             }
 
             // Шанс выпадения
             if(this.formCreatePrize.chance < 1) {
                 this.warnings.prizeChance = true
                 isValid = false
+                window.scrollTo({ top: 100, behavior: 'smooth' });
             }
 
             // Наличие картинки
-            if(this.formCreatePrize.image === null) {
+            if(this.formCreatePrize.imageUrl === '') {
                 this.warnings.prizeImage = true
                 isValid = false
+                window.scrollTo({ top: 100, behavior: 'smooth' });
+            }
+
+            // Минимальное кол-во не должно быть больше максимального
+            if(this.formCreatePrize.minQuantity !== null
+                && this.formCreatePrize.maxQuantity !== null
+                && this.formCreatePrize.minQuantity > this.formCreatePrize.maxQuantity
+            ) {
+                this.warnings.prizeQuantity = true
+                isValid = false
+                window.scrollTo({ top: 100, behavior: 'smooth' });
+            }
+
+            // Не может быть заполнено только одно поле количества
+            if((this.formCreatePrize.minQuantity === null) !== (this.formCreatePrize.maxQuantity === null)) {
+                this.warnings.prizeQuantityNull = true
+                isValid = false
+                window.scrollTo({ top: 100, behavior: 'smooth' });
             }
 
             return isValid
@@ -237,10 +273,11 @@ export default {
                 if(res.ok) {
                     this.isConfirmationWindow = false
                     this.prizes.splice(this.prizeToDelete.index, 1)
-                    alert(`Приз ${this.prizeToDelete.name} был успешно удален`)
+                    this.$store.dispatch('notification', {message: `Приз ${this.prizeToDelete.name} был успешно удален`, condition: true, show: true})
                 } else {
                     this.isConfirmationWindow = false
                     alert(`Произошла ошибка при удалении приза`)
+                    this.$store.dispatch('notification', {message: `Произошла ошибка при удалении приза`, condition: false, show: true})
                 }
 
             } catch(error) {
@@ -439,7 +476,7 @@ export default {
         z-index: 2;
         width: 100%;
         height: 100vh;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.6);
         left: 50%;
         top: 50%;
         transform: translate(-50%, -50%);
