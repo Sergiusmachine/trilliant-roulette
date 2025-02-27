@@ -78,7 +78,7 @@
                         <p v-if="prize.alternative !== null">Цена продажи: <span style="color: green;">{{ prize.alternative }}$</span></p>
                     </div>
 
-                    <button class="create-prize-button" v-if="!prize.name === 'Respin'" style="padding: 7px 15px; font-size: 14px; margin-top: 20px;" @click="confirmDelete(prize, index)">Удалить</button>
+                    <button class="create-prize-button" v-if="prize.name !== 'Respin'" style="padding: 7px 15px; font-size: 14px; margin-top: 20px;" @click="confirmDelete(prize, index)">Удалить</button>
 
                     <div class="confirmation-window-bg" v-if="isConfirmationWindow">
                         <div class="confirmation-window">
