@@ -7,10 +7,11 @@
                     {{ $store.state.user.quantity }}
                 </span>
             </h4>
+            
             <div class="scopeHidden">
                 <img class="pi-caret-down" src="/assets/logo.svg" alt="" ref="caret">
                 <ul :class="{'moveRoulette': isActive}" class="list" ref="rouletteList">
-                    <li v-for="prize of fakePrizes" :class="['element', getBackground(prize)]"><img class="img-element" :src="prize.url" alt=""></li>
+                    <li v-for="prize of fakePrizes" class='element' :style="{backgroundColor: prize.color}"><img class="img-element" :src="prize.url" alt=""></li>
                 </ul>
             </div>
             <div class="prize-window-bg" v-if="!isHidden">
@@ -62,17 +63,17 @@ export default {
     data() {
         return {
             prizes: [
-            {name: "Бриллианты", url: '/assets/prizes/brill.png', bg: 'gray', minQuantity: 10, maxQuantity: 150, alternative: 1200, chance: 20},
-                {name: "Сертификаты", url: '/assets/prizes/sert.png', bg: 'gray', minQuantity: 50, maxQuantity: 500, alternative: 1200, chance: 20},
-                {name: "Maverick", url: '/assets/prizes/maver.png', bg: 'gold', quantity: 1, alternative: 8000000, chance: 2},
-                {name: "Аксессуар + покраска", url: '/assets/prizes/acs.png', bg: 'gold', quantity: 1, alternative: 5000000, chance: 1},
-                {name: "Даймонд Боксы", url: '/assets/prizes/box.png', bg: 'gray', minQuantity: 2, maxQuantity: 30, chance: 20},
-                {name: "Скин Andre/Клоуна", url: '/assets/prizes/skin.png', bg: 'gray', quantity: 1, alternative: 80000, chance: 13},
-                {name: "Respin", url: '/assets/prizes/respin.png', bg: 'gray', chance: 7},
-                {name: "Игровая валюта", url: '/assets/prizes/virt.png', bg: 'blue', minQuantity: 150000, maxQuantity: 1500000, chance: 6},
-                {name: "Hotknife Hell", bg: 'blue', url: '/assets/prizes/hotknife.webp', quantity: 1, alternative: 500000, chance: 5},
-                {name: "Normal Ped (ID: 44)", bg: 'blue', url: '/assets/prizes/normalped.webp', quantity: 1, alternative: 300000, chance: 3},
-                {name: "Донат", url: '/assets/prizes/donate.png', bg: 'blue', minQuantity: 25, maxQuantity: 300, chance: 3},
+                // {name: "Бриллианты", url: '/assets/prizes/brill.png', bg: 'gray', minQuantity: 10, maxQuantity: 150, alternative: 1200, chance: 20},
+                // {name: "Сертификаты", url: '/assets/prizes/sert.png', bg: 'gray', minQuantity: 50, maxQuantity: 500, alternative: 1200, chance: 20},
+                // {name: "Maverick", url: '/assets/prizes/maver.png', bg: 'gold', quantity: 1, alternative: 8000000, chance: 2},
+                // {name: "Аксессуар + покраска", url: '/assets/prizes/acs.png', bg: 'gold', quantity: 1, alternative: 5000000, chance: 1},
+                // {name: "Даймонд Боксы", url: '/assets/prizes/box.png', bg: 'gray', minQuantity: 2, maxQuantity: 30, chance: 20},
+                // {name: "Скин Andre/Клоуна", url: '/assets/prizes/skin.png', bg: 'gray', quantity: 1, alternative: 80000, chance: 13},
+                // {name: "Respin", url: '/assets/prizes/respin.png', bg: 'gray', chance: 7},
+                // {name: "Игровая валюта", url: '/assets/prizes/virt.png', bg: 'blue', minQuantity: 150000, maxQuantity: 1500000, chance: 6},
+                // {name: "Hotknife Hell", bg: 'blue', url: '/assets/prizes/hotknife.webp', quantity: 1, alternative: 500000, chance: 5},
+                // {name: "Normal Ped (ID: 44)", bg: 'blue', url: '/assets/prizes/normalped.webp', quantity: 1, alternative: 300000, chance: 3},
+                // {name: "Донат", url: '/assets/prizes/donate.png', bg: 'blue', minQuantity: 25, maxQuantity: 300, chance: 3},
             ],
 
             // Таймер
@@ -105,6 +106,7 @@ export default {
 
     async mounted() {
         await this.$store.dispatch('checkAuth') // Проверяем авторизацию
+        await this.getPrizes() // Получаем список всех призов
         await this.$store.dispatch('getQuantity') // Подгружаем количество круток
         await this.checkBan(); // Проверяем на блокировку прокрута рулеток
 
@@ -133,8 +135,8 @@ export default {
             for (const prize of this.prizes) {
                 cumulativeChance += prize.chance;
                 if (randomChance <= cumulativeChance) {
-                    if (prize.minQuantity && prize.maxQuantity) {
-                        const quantity = Math.floor(Math.random() * (prize.maxQuantity - prize.minQuantity + 1)) + prize.minQuantity;
+                    if (prize.min_quantity && prize.max_quantity) {
+                        const quantity = Math.floor(Math.random() * (prize.max_quantity - prize.min_quantity + 1)) + prize.min_quantity;
                         prize.quantity = quantity;
                         this.result = prize;
                     } else {
@@ -224,6 +226,22 @@ export default {
             location.reload(true)
         },
 
+        // Получаем список всех призов
+        async getPrizes() {
+            try {
+                const res = await fetch('https://trilliantroulette.ru/api/getPrizes', {
+                    method: 'GET',
+                })
+                if (!res.ok) {
+                    throw new Error('Ошибка при получении данных с сервера');
+                }
+                this.prizes = await res.json()
+            } catch (error) {
+                console.error('Ошибка при выполнении getPrizes():', error);
+            }
+        },
+
+
         // Отправка приза в базу данных
         async getPrize() {
             if(this.finalResult.name !== 'Respin') {
@@ -287,19 +305,6 @@ export default {
         updateRandomNumber() {
             this.randomNumber = this.getRandomNumber();
             document.documentElement.style.setProperty('--random-number', this.randomNumber);
-        },
-
-        // Получаем фон для элементов рулетки
-        getBackground(prize) {
-            if (prize.bg === 'blue') {
-                return 'bg-blue';
-            } else if (prize.bg === 'gray') {
-                return 'bg-gray';
-            } else if (prize.bg === 'gold') {
-                return 'bg-gold';
-            } else {
-                return '';
-            }
         },
 
         // Метод для проигрывания звука при каждом новом элементе
@@ -578,18 +583,6 @@ export default {
 
     .moveRoulette {
         transform: translateX(calc(var(--random-number) * 1px));
-    }
-
-    .bg-gray {
-        background-color: #1f1f1f;
-    }
-
-    .bg-blue {
-        background-color: #22226c;
-    }
-
-    .bg-gold {
-        background-color: #7a7720;
     }
 
     .technical-work {
