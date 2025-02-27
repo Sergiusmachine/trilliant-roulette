@@ -150,6 +150,16 @@ app.get('/api/getAllPrizes', async (req ,res) => {
     }
 })
 
+// Получаем список всех призов для рулетки
+app.get('/api/getPrizes', async (req, res) => {
+    try {
+        const result = await pool.query('SELECT * FROM prizes')
+        res.json(result.rows)
+    } catch(error) {
+        console.error(error)
+    }
+})
+
 // Получить админу информацию о пользователе
 app.post('/api/getInfo', async (req, res) => {
     const { username } = req.body
