@@ -34,15 +34,6 @@ const submitForm = async () => {
     errorMessage.value = error.message;
   }
 };
-
-onMounted(() => {
-  const isAuthenticated = localStorage.getItem("isAuthenticated");
-  const username = localStorage.getItem("username");
-
-  if (isAuthenticated === "true") {
-    router.push("/roulette");
-  }
-});
 </script>
 
 <template>
