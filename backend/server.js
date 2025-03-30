@@ -1206,12 +1206,6 @@ app.post("/api/login", async (req, res) => {
 
     if (result.rows.length > 0) {
       const user = result.rows[0];
-      const isValidPassword = await bcrypt.compare(password, user.password);
-      if (isValidPassword) {
-        await client.query("UPDATE users SET auth = true WHERE username = $1", [
-          name,
-        ]);
-      }
 
       res.status(200).json({
         name: user.username,
