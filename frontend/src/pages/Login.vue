@@ -40,8 +40,6 @@ onMounted(() => {
   const username = localStorage.getItem("username");
 
   if (isAuthenticated === "true") {
-    store.commit("SET_AUTHORIZATION", true);
-    store.commit("SET_USERNAME", username);
     router.push("/roulette");
   }
 });
