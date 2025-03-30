@@ -6,7 +6,6 @@ import cors from "cors";
 import { json } from "express";
 import path from "path";
 import schedule from "node-schedule";
-import bcrypt from "bcrypt";
 
 const { Pool } = pkg;
 const app = express();
@@ -18,17 +17,6 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   port: process.env.DB_PORT,
 });
-
-// Проверка подключения к базе данных
-pool
-  .connect()
-  .then((client) => {
-    console.log("Connected to the database!");
-    client.release(); // Освобождаем соединение
-  })
-  .catch((err) => {
-    console.error("Failed to connect to the database:", err);
-  });
 
 app.use(
   cors({
@@ -52,22 +40,31 @@ app.use(express.static(path.join(__dirname, "public")));
 async function updateTodayQuantity() {
   try {
     const query =
-      "UPDATE users SET todayquantity = CASE WHEN accnumber = 54321 THEN 5 ELSE 3 END";
+      "UPDATE users SET todayquantity = CASE WHEN accnumber = 1501549 THEN 5 ELSE 3 END";
     await pool.query(query);
-    console.log("todayquantity updated");
   } catch (err) {
     console.error("Error updating todayquantity:", err.message);
   }
 }
 
-// Запланировать выполнение обновления счетчика на 00:00 по МСК
-const job = schedule.scheduleJob(
-  { hour: 16, minute: 59, tz: "Etc/UTC" },
-  () => {
-    console.log("Running scheduled task to update todayquantity");
-    updateTodayQuantity();
+// Запланированное удаление старых логов
+async function deleteOldLogs() {
+  try {
+    const queryAdmLogs = `DELETE FROM logs WHERE timestamp < NOW() - INTERVAL '6 days'`;
+    const queryPrizesLogs = `DELETE FROM logs_prizes WHERE timestamp < NOW() - INTERVAL '6 days'`;
+    await pool.query(queryAdmLogs);
+    await pool.query(queryPrizesLogs);
+  } catch (err) {
+    console.error("Error deleting old logs:", err.message);
   }
-);
+}
+
+// Запланировать выполнение обновления счетчика на 00:00 по МСК
+const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: "Etc/UTC" }, () => {
+  console.log("Running scheduled task to update todayquantity");
+  updateTodayQuantity();
+  deleteOldLogs();
+});
 
 // Получить админу информацию о пользователе
 app.post("/api/getInfo", async (req, res) => {
