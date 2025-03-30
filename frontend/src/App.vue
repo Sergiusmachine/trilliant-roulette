@@ -6,7 +6,9 @@ const userStore = useUserStore();
 
 onMounted(() => {
   userStore.checkAuth();
-  userStore.checkAdmin();
+  if (userStore.user.isAuth) {
+    userStore.checkAdmin();
+  }
 });
 </script>
 

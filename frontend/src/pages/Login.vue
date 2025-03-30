@@ -1,7 +1,6 @@
 <script setup>
 import Logo from "../components/Logo.vue";
-import api from "../api";
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useUserStore } from "../store/userStore";
 const userStore = useUserStore();
