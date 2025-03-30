@@ -2,8 +2,6 @@
 import Logo from "./Logo.vue";
 import { ref, onMounted } from "vue";
 import { useUserStore } from "../store/userStore";
-import { useStore } from "vuex";
-const store = useStore();
 const userStore = useUserStore();
 
 const isList = ref(false);
@@ -20,7 +18,7 @@ const logout = () => {
 };
 
 onMounted(() => {
-  store.dispatch("checkAuth");
+  userStore.checkAuth();
 });
 </script>
 
