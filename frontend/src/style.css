@@ -1,24 +1,88 @@
-@import 'primeicons/primeicons.css';
-@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
+@import "primeicons/primeicons.css";
+@import url("https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
-html, body {
-    background-color: rgb(40, 40, 40);
-    color: #d3d3d3;
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: "Exo 2", sans-serif;
-    font-optical-sizing: auto;
-    font-style: normal;
-    height: 100vh;
+html,
+body {
+  background-color: #171717;
+  color: #d3d3d3;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Exo 2", sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  height: 100vh;
 }
-  
+
+:root {
+  --black: #151515;
+  --gray: #1a1a1a;
+  --pink: #b52856;
+  --input: #1f1f1f;
+  --button: #bababa;
+}
+
+::-webkit-scrollbar {
+  background: #191919;
+  border-radius: 5px;
+  width: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 5px;
+}
+
+.gradient {
+  background-size: 400% 100%;
+  background-image: linear-gradient(
+    90deg,
+    #fc1588,
+    #ff4772,
+    #e06697,
+    #ff4772,
+    #fc1588
+  );
+  animation: moveGradient 5s linear infinite;
+}
+
+@keyframes moveGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: -200% 50%;
+  }
+}
+
+.window-wrapper {
+  position: fixed;
+  z-index: 2;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 a {
-    text-decoration: none;
-    color: #d3d3d3;
+  text-decoration: none;
+  color: #d3d3d3;
 }
 
 .hidden {
-    display: none;
-    visibility: none;
+  display: none;
+  visibility: none;
+}
+
+ul {
+  text-decoration: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
 }
