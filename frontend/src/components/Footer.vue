@@ -1,5 +1,5 @@
 <template>
-    <footer class="footer">
+    <footer>
         <p>created by <span>John Hartman</span></p>
         <p style="text-align: center;">Нашел баг или есть предложения по улучшению сайта? <br> Discord для связи - <span>sergiusmachine</span></p>
     </footer>
@@ -10,7 +10,7 @@ export default {
 }
 </script>
 <style scoped>
-    .footer {
+    footer {
         display: flex;
         justify-content: space-around;
         align-items: center;
