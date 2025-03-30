@@ -648,36 +648,8 @@ app.use(json());
 // Получаем путь к текущему файлу
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
-// const uploadsDir = path.resolve('../uploads');
 
 app.use(express.static(path.join(__dirname, "public")));
-
-// Настройка Multer для сохранения файлов в папку "uploads"
-// const storage = multer.diskStorage({
-//     destination: (req, file, cb) => {
-//         cb(null, uploadsDir); // Указание папки для загрузки
-//     },
-//     filename: (req, file, cb) => {
-//         cb(null, Date.now() + file.originalname); // Сохраняем файл с уникальным именем
-//     }
-// });
-// const upload = multer({ storage: storage });
-
-// Обработчик для загрузки одного файла
-// app.post('/api/upload', upload.single('file'), (req, res) => {
-//     if (!req.file) {
-//         return res.status(400).json({ message: 'No file uploaded' });
-//     }
-
-//     const fileUrl = `https://trilliantroulette.ru/uploads/${req.file.filename}`; // !!!
-
-//     res.json({ imageUrl: fileUrl });
-// });
-
-// console.log(`Папка для загрузки файлов: ${uploadsDir}`)
-
-// Публичный доступ к загруженным файлам
-// app.use('/uploads', express.static(uploadsDir));
 
 // Обновить счетчик
 async function updateTodayQuantity() {
@@ -744,12 +716,10 @@ app.post("/api/createPrize", async (req, res) => {
   } catch (error) {
     console.error(error);
     if (error.code === "23505") {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Приз с таким названием уже существует",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Приз с таким названием уже существует",
+      });
     }
     res.status(500).json({ success: false, message: "Ошибка сервера" });
   }
@@ -761,17 +731,6 @@ app.post("/api/destructionPrize", async (req, res) => {
   try {
     const query = "DELETE FROM prizes WHERE name = $1";
     const result = await pool.query(query, [prizeName]);
-
-    // const fileName = path.basename(prizeUrl)
-    // const imgPath = path.resolve('../uploads', fileName);
-
-    // fs.unlink(imgPath, (err) => {
-    //     if (err) {
-    //         console.error('Ошибка при удалении файла:', err);
-    //         return;
-    //     }
-    //     console.log('Файл успешно удален:', imgPath);
-    // })
 
     if (result.rowCount > 0) {
       const log =
@@ -853,12 +812,10 @@ app.put("/api/changeName", async (req, res) => {
     }
   } catch (error) {
     console.error("Ошибка при обновлении имени пользователя:", error);
-    res
-      .status(500)
-      .json({
-        success: false,
-        message: "Пользователь с таким ником уже существует",
-      });
+    res.status(500).json({
+      success: false,
+      message: "Пользователь с таким ником уже существует",
+    });
   }
 });
 
@@ -896,13 +853,11 @@ app.put("/api/updateQuantity", async (req, res) => {
     }
     const newQuantity = result.rows[0].quantity;
     const newTodayQuantity = result.rows[0].todayquantity;
-    res
-      .status(200)
-      .json({
-        success: true,
-        quantity: newQuantity,
-        todayQuantity: newTodayQuantity,
-      });
+    res.status(200).json({
+      success: true,
+      quantity: newQuantity,
+      todayQuantity: newTodayQuantity,
+    });
   } catch (err) {
     res.status(500).json({ success: false, message: "Ошибка сервера" });
   }
@@ -1078,20 +1033,16 @@ app.post("/api/addQuantity", async (req, res) => {
 
     const result = await pool.query(data, [quantity, username]);
     if (result.rowCount === 0) {
-      return res
-        .status(404)
-        .json({
-          message: "Пользователь не найден или введены неверные значения",
-        });
+      return res.status(404).json({
+        message: "Пользователь не найден или введены неверные значения",
+      });
     } else {
       const log =
         "INSERT INTO logs (admin, action, username, quantity) VALUES ($1, $2, $3, $4)";
       await pool.query(log, [admin, action, username, quantity]);
-      return res
-        .status(200)
-        .json({
-          message: `Пользователю ${username} добавлено ${quantity} рулеток`,
-        });
+      return res.status(200).json({
+        message: `Пользователю ${username} добавлено ${quantity} рулеток`,
+      });
     }
   } catch {
     console.error("Ошибка при обновлении quantity:", error);
@@ -1199,6 +1150,49 @@ app.post("/api/checkBan", async (req, res) => {
 });
 
 // Авторизация
+// app.post("/api/login", async (req, res) => {
+//   const { name, password } = req.body;
+//   let client;
+
+//   try {
+//     client = await pool.connect();
+//     const result = await client.query(
+//       "SELECT * FROM users WHERE username = $1",
+//       [name]
+//     );
+
+//     if (result.rows.length > 0) {
+//       const user = result.rows[0];
+//       const isValidPassword = await bcrypt.compare(password, user.password);
+//       if (isValidPassword) {
+//         await client.query("UPDATE users SET auth = true WHERE username = $1", [
+//           name,
+//         ]);
+//       }
+
+//       res.status(200).json({
+//         name: user.username,
+//         quantity: user.quantity,
+//         todayQuantity: user.todayquantity,
+//         isAuth: true,
+//         isAdmin: user.admin,
+//       });
+//     } else {
+//       res
+//         .status(401)
+//         .json({ message: "Неправильное имя пользователя или пароль" });
+//     }
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: "Ошибка при входе" });
+//   } finally {
+//     if (client) {
+//       client.release(); // Освобождаем клиент только если он был инициализирован
+//     }
+//   }
+// });
+
+// Авторизация
 app.post("/api/login", async (req, res) => {
   const { name, password } = req.body;
   let client;
@@ -1212,8 +1206,18 @@ app.post("/api/login", async (req, res) => {
 
     if (result.rows.length > 0) {
       const user = result.rows[0];
+      const isValidPassword = await bcrypt.compare(password, user.password);
+      if (isValidPassword) {
+        await client.query("UPDATE users SET auth = true WHERE username = $1", [
+          name,
+        ]);
+      }
+
       res.status(200).json({
-        message: "Вход успешен",
+        name: user.username,
+        quantity: user.quantity,
+        todayQuantity: user.todayquantity,
+        isAuth: true,
         isAdmin: user.admin,
       });
     } else {

@@ -10,7 +10,6 @@ const actionCorrection = (log) => {
     prize_name: prizeName,
     newname: newName,
   } = log;
-  console.log(log);
   if (action === "Регистрация пользователя") {
     return `Администратор <span style="color: #5b9870">${admin}</span> зарегистрировал пользователя <span style="color: #5b9870">${username}</span>`;
   } else if (action === "Смена никнейма") {

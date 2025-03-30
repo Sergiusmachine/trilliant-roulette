@@ -29,7 +29,6 @@ export const useUserStore = defineStore("userStore", {
       if (userData) {
         try {
           const user = JSON.parse(userData);
-          console.log(user);
           this.user.name = user.name || "";
           this.user.isAuth = user.isAuth || false;
           // this.user.isAdmin = user.isAdmin || false;
@@ -62,11 +61,6 @@ export const useUserStore = defineStore("userStore", {
         if (res.status === 200) {
           this.user.quantity = res.data.quantity;
           this.user.todayQuantity = res.data.todayquantity;
-        } else {
-          console.log(
-            "Не удалось получить quantity",
-            res.response.data.message
-          );
         }
       } catch (error) {
         throw new Error(error.response?.data?.message);
