@@ -62,13 +62,10 @@ async function updateTodayQuantity() {
 }
 
 // Запланировать выполнение обновления счетчика на 00:00 по МСК
-const job = schedule.scheduleJob(
-  { hour: 16, minute: 59, tz: "Etc/UTC" },
-  () => {
-    console.log("Running scheduled task to update todayquantity");
-    updateTodayQuantity();
-  }
-);
+const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: "Etc/UTC" }, () => {
+  console.log("Running scheduled task to update todayquantity");
+  updateTodayQuantity();
+});
 
 // Получить админу информацию о пользователе
 app.post("/api/getInfo", async (req, res) => {
