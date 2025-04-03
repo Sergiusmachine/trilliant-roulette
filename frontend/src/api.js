@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://trilliantroulette.ru/api",
+  baseURL: "https://trilliantroulett.ru/api",
   headers: {
     "Content-Type": "application/json",
   },
