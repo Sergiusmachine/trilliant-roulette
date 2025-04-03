@@ -159,7 +159,7 @@ const getFastResult = async () => {
   if (finalResult.value.name !== "Respin") {
     try {
       quantityHistory.value.before = userStore.user.quantity;
-      await userStore.decreaseQuantity();
+      userStore.decreaseQuantity();
       quantityHistory.value.after = userStore.user.quantity;
       await getPrize();
     } catch {
@@ -192,10 +192,10 @@ const getPrize = async () => {
           finalResult.value.quantity !== undefined
             ? finalResult.value.quantity
             : null,
-        // userQuantityBefore: quantityHistory.value.before,
-        // userQuantityAfter: quantityHistory.value.after,
       });
-      if (!res.status === 204) {
+      if (res.status === 400) {
+        closeWindow();
+        alert("Недостаточно рулеток");
         const errorMessage = await res.text();
         console.error("Ошибка:", errorMessage);
       }
