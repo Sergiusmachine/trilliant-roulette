@@ -162,12 +162,11 @@ const getFastResult = async () => {
       userStore.decreaseQuantity();
       quantityHistory.value.after = userStore.user.quantity;
       await getPrize();
+      isHidden.value = false;
     } catch {
       closeWindow();
     }
   }
-
-  isHidden.value = false;
   if (finalResult.value.alternative) {
     onlyGet.value = true;
   }
