@@ -135,7 +135,7 @@ const getFinalResult = async () => {
       quantityHistory.value.after = userStore.user.quantity;
       await getPrize();
     } catch {
-      alert("Недостаточно рулеток");
+      closeWindow();
     }
   } else if (finalResult.value.name === "Respin") {
     userStore.decreaseQuantity();
@@ -164,8 +164,6 @@ const getFastResult = async () => {
       await getPrize();
     } catch {
       closeWindow();
-      alert("Недостаточно рулеток");
-      location.reload(true);
     }
   }
 
