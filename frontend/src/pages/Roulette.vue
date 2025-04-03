@@ -188,19 +188,17 @@ const getPrize = async () => {
         username: userStore.user.name,
         prizeName: finalResult.value.name,
         url: finalResult.value.url,
-        quantity:
-          finalResult.value.quantity !== undefined
-            ? finalResult.value.quantity
-            : null,
+        quantity: finalResult.value.quantity ?? null,
       });
-      if (res.status === 400) {
-        closeWindow();
-        alert("Недостаточно рулеток");
+
+      if (res.status !== 200) {
         const errorMessage = await res.text();
         console.error("Ошибка:", errorMessage);
+        throw new Error(errorMessage);
       }
     } catch (error) {
       console.error("Ошибка при выполнении getPrize():", error);
+      throw error;
     }
   }
 };
