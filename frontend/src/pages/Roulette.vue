@@ -91,27 +91,27 @@ const start = () => {
   }
 };
 
-// Уменьшаем количество круток после старта рулетки
-const decreaseQuantity = async () => {
-  try {
-    const res = await api.put("/updateQuantity", {
-      username: userStore.user.name,
-    });
+// // Уменьшаем количество круток после старта рулетки
+// const decreaseQuantity = async () => {
+//   try {
+//     const res = await api.put("/updateQuantity", {
+//       username: userStore.user.name,
+//     });
 
-    if (res.status === 200) {
-      userStore.decreaseQuantity();
-    } else {
-      console.error(`Unexpected response status: ${res.status}`);
-    }
-  } catch (error) {
-    console.error("Error during quantity update:", error);
-    if (error.response) {
-      console.error(error.response?.data?.message || "Unknown error");
-    } else {
-      console.error("Network or unexpected error");
-    }
-  }
-};
+//     if (res.status === 200) {
+//       userStore.decreaseQuantity();
+//     } else {
+//       console.error(`Unexpected response status: ${res.status}`);
+//     }
+//   } catch (error) {
+//     console.error("Error during quantity update:", error);
+//     if (error.response) {
+//       console.error(error.response?.data?.message || "Unknown error");
+//     } else {
+//       console.error("Network or unexpected error");
+//     }
+//   }
+// };
 
 // Добавляем в массив fakePrizes случайные элементы из массива prizes
 const arrayMix = () => {
@@ -131,7 +131,7 @@ const getFinalResult = async () => {
   if (finalResult.value.name !== "Respin") {
     try {
       quantityHistory.value.before = userStore.user.quantity;
-      await decreaseQuantity();
+      userStore.decreaseQuantity();
       quantityHistory.value.after = userStore.user.quantity;
       await getPrize();
     } catch {
@@ -159,7 +159,7 @@ const getFastResult = async () => {
   if (finalResult.value.name !== "Respin") {
     try {
       quantityHistory.value.before = userStore.user.quantity;
-      await decreaseQuantity();
+      await userStore.decreaseQuantity();
       quantityHistory.value.after = userStore.user.quantity;
       await getPrize();
     } catch {
@@ -184,7 +184,7 @@ const getPrizes = async () => {
 const getPrize = async () => {
   if (finalResult.value.name !== "Respin") {
     try {
-      const res = await api.post("/getPrize", {
+      const res = await api.post("/spinRoulette", {
         username: userStore.user.name,
         prizeName: finalResult.value.name,
         url: finalResult.value.url,
@@ -192,8 +192,8 @@ const getPrize = async () => {
           finalResult.value.quantity !== undefined
             ? finalResult.value.quantity
             : null,
-        userQuantityBefore: quantityHistory.value.before,
-        userQuantityAfter: quantityHistory.value.after,
+        // userQuantityBefore: quantityHistory.value.before,
+        // userQuantityAfter: quantityHistory.value.after,
       });
       if (!res.status === 204) {
         const errorMessage = await res.text();

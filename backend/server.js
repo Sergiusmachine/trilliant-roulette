@@ -61,14 +61,24 @@ async function updateTodayQuantity() {
   }
 }
 
-// Запланировать выполнение обновления счетчика на 00:00 по МСК
-const job = schedule.scheduleJob(
-  { hour: 16, minute: 59, tz: "Etc/UTC" },
-  () => {
-    console.log("Running scheduled task to update todayquantity");
-    updateTodayQuantity();
+// Запланированное удаление старых логов
+async function deleteOldLogs() {
+  try {
+    const queryAdmLogs = `DELETE FROM logs WHERE timestamp < NOW() - INTERVAL '6 days'`;
+    const queryPrizesLogs = `DELETE FROM logs_prizes WHERE timestamp < NOW() - INTERVAL '6 days'`;
+    await pool.query(queryAdmLogs);
+    await pool.query(queryPrizesLogs);
+  } catch (err) {
+    console.error("Error deleting old logs:", err.message);
   }
-);
+}
+
+// Запланировать выполнение обновления счетчика на 00:00 по МСК
+const job = schedule.scheduleJob({ hour: 21, minute: 0, tz: "Etc/UTC" }, () => {
+  console.log("Running scheduled task to update todayquantity");
+  updateTodayQuantity();
+  deleteOldLogs();
+});
 
 // Получить админу информацию о пользователе
 app.post("/api/getInfo", async (req, res) => {
@@ -144,58 +154,119 @@ app.post("/api/quantity", async (req, res) => {
   }
 });
 
-// Уменьшить количество рулеток
-app.put("/api/updateQuantity", async (req, res) => {
-  const { username } = req.body;
+app.post("/api/spinRoulette", async (req, res) => {
+  const { username, prizeName, url, quantity } = req.body;
+  const client = await pool.connect();
+
   try {
-    const updateQuery =
-      "UPDATE users SET quantity = quantity - 1, todayquantity = todayquantity - 1 WHERE username = $1 AND quantity > 0 RETURNING quantity, todayquantity;";
-    const result = await pool.query(updateQuery, [username]);
+    await client.query("BEGIN");
+
+    // Уменьшаем количество рулеток
+    const updateQuery = `
+      UPDATE users 
+      SET quantity = quantity - 1, todayquantity = todayquantity - 1 
+      WHERE username = $1 AND quantity > 0 
+      RETURNING quantity, todayquantity;
+    `;
+    const result = await client.query(updateQuery, [username]);
+
     if (result.rows.length === 0) {
+      await client.query("ROLLBACK");
       return res
         .status(400)
         .json({ success: false, message: "Недостаточно рулеток" });
     }
+
     const newQuantity = result.rows[0].quantity;
     const newTodayQuantity = result.rows[0].todayquantity;
+
+    // Добавляем приз
+    const insertPrizeQuery = `
+      INSERT INTO user_prizes (username, prize_name, quantity, url) 
+      VALUES ($1, $2, $3, $4);
+    `;
+    await client.query(insertPrizeQuery, [username, prizeName, quantity, url]);
+
+    // Логируем операцию
+    const logsQuery = `
+      INSERT INTO logs_prizes (username, prize_name, prize_quantity, user_quantity_before, user_quantity_after) 
+      VALUES ($1, $2, $3, $4, $5);
+    `;
+    await client.query(logsQuery, [
+      username,
+      prizeName,
+      quantity,
+      newQuantity + 1,
+      newQuantity,
+    ]);
+
+    await client.query("COMMIT");
     res.status(200).json({
       success: true,
       quantity: newQuantity,
       todayQuantity: newTodayQuantity,
     });
-  } catch (err) {
+  } catch (error) {
+    await client.query("ROLLBACK");
+    console.error(error);
     res.status(500).json({ success: false, message: "Ошибка сервера" });
+  } finally {
+    client.release();
   }
 });
 
-// Добавить выигранный приз в базу данных
-app.post("/api/getPrize", async (req, res) => {
-  const {
-    username,
-    prizeName,
-    url,
-    quantity,
-    userQuantityBefore,
-    userQuantityAfter,
-  } = req.body;
-  try {
-    const insertQuery =
-      "INSERT INTO user_prizes (username, prize_name, quantity, url) VALUES ($1, $2, $3, $4)";
-    await pool.query(insertQuery, [username, prizeName, quantity, url]);
-    const logs = `INSERT INTO logs_prizes (username, prize_name, prize_quantity, user_quantity_before, user_quantity_after) VALUES ($1, $2, $3, $4, $5)`;
-    await pool.query(logs, [
-      username,
-      prizeName,
-      quantity,
-      userQuantityBefore,
-      userQuantityAfter,
-    ]);
-    res.sendStatus(204);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Ошибка сервера" });
-  }
-});
+// // Уменьшить количество рулеток
+// app.put("/api/updateQuantity", async (req, res) => {
+//   const { username } = req.body;
+//   try {
+//     const updateQuery =
+//       "UPDATE users SET quantity = quantity - 1, todayquantity = todayquantity - 1 WHERE username = $1 AND quantity > 0 RETURNING quantity, todayquantity;";
+//     const result = await pool.query(updateQuery, [username]);
+//     if (result.rows.length === 0) {
+//       return res
+//         .status(400)
+//         .json({ success: false, message: "Недостаточно рулеток" });
+//     }
+//     const newQuantity = result.rows[0].quantity;
+//     const newTodayQuantity = result.rows[0].todayquantity;
+//     res.status(200).json({
+//       success: true,
+//       quantity: newQuantity,
+//       todayQuantity: newTodayQuantity,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ success: false, message: "Ошибка сервера" });
+//   }
+// });
+
+// // Добавить выигранный приз в базу данных
+// app.post("/api/getPrize", async (req, res) => {
+//   const {
+//     username,
+//     prizeName,
+//     url,
+//     quantity,
+//     userQuantityBefore,
+//     userQuantityAfter,
+//   } = req.body;
+//   try {
+//     const insertQuery =
+//       "INSERT INTO user_prizes (username, prize_name, quantity, url) VALUES ($1, $2, $3, $4)";
+//     await pool.query(insertQuery, [username, prizeName, quantity, url]);
+//     const logs = `INSERT INTO logs_prizes (username, prize_name, prize_quantity, user_quantity_before, user_quantity_after) VALUES ($1, $2, $3, $4, $5)`;
+//     await pool.query(logs, [
+//       username,
+//       prizeName,
+//       quantity,
+//       userQuantityBefore,
+//       userQuantityAfter,
+//     ]);
+//     res.sendStatus(204);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ success: false, message: "Ошибка сервера" });
+//   }
+// });
 
 // Создать админу новый приз
 app.post("/api/createPrize", async (req, res) => {

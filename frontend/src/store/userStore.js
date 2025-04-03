@@ -31,20 +31,25 @@ export const useUserStore = defineStore("userStore", {
           const user = JSON.parse(userData);
           this.user.name = user.name || "";
           this.user.isAuth = user.isAuth || false;
+          this.user.isAdmin = user.isAdmin || false;
+
+          if (this.user.isAuth) {
+            const res = await api.post("/checkAdmin", {
+              username: this.user.name,
+            });
+
+            if (res.status === 200) {
+              if (this.user.isAdmin !== res.data.admin) {
+                this.user.isAdmin = res.data.admin;
+
+                user.isAdmin = res.data.admin;
+                localStorage.setItem("user", JSON.stringify(user));
+              }
+            }
+          }
         } catch (error) {
           console.error("Ошибка при парсинге данных пользователя:", error);
         }
-      }
-    },
-
-    async checkAdmin() {
-      try {
-        const res = await api.post("/checkAdmin", { username: this.user.name });
-        if (res.status === 200) {
-          this.user.isAdmin = res.data.admin;
-        }
-      } catch (error) {
-        console.error("Ошибка при проверке прав администратора:", error);
       }
     },
 
