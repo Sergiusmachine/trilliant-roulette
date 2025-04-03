@@ -37,7 +37,7 @@ const actionCorrection = (log) => {
   <div>
     <BaseLogs
       :titleComponent="`История выигрышей ${route.query.username}`"
-      fetchUrl="http://localhost:3000/api/getUserLogsPrizes"
+      fetchUrl="/getUserLogsPrizes"
       :actionCorrection="actionCorrection"
       :fetchOptions="{ username: route.query.username }"
       fetchMethod="POST"
