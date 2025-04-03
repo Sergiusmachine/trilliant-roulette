@@ -163,6 +163,7 @@ const getFastResult = async () => {
       quantityHistory.value.after = userStore.user.quantity;
       await getPrize();
     } catch {
+      closeWindow();
       alert("Недостаточно рулеток");
       location.reload(true);
     }
