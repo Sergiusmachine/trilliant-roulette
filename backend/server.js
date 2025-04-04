@@ -53,7 +53,7 @@ app.use(express.static(path.join(__dirname, "public")));
 async function updateTodayQuantity() {
   try {
     const query =
-      "UPDATE users SET todayquantity = CASE WHEN accnumber = 54321 THEN 5 ELSE 3 END";
+      "UPDATE users SET todayquantity = CASE WHEN accnumber = 1501549 THEN 5 ELSE 3 END";
     await pool.query(query);
     console.log("todayquantity updated");
   } catch (err) {
