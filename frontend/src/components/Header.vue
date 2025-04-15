@@ -18,10 +18,6 @@ const logout = () => {
   userStore.logout();
   return location.replace("/");
 };
-
-onMounted(() => {
-  store.dispatch("checkAuth");
-});
 </script>
 
 <template>
