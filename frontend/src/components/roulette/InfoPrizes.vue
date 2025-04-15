@@ -98,4 +98,11 @@ ul {
   border-radius: 5px;
   padding: 3px 8px;
 }
+
+@media (max-height: 450px) {
+  .info-prizes {
+    height: 80vh;
+    overflow: hidden;
+  }
+}
 </style>

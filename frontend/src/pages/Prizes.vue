@@ -148,6 +148,12 @@ onMounted(getPrizeList);
   }
 }
 
+@media (max-height: 400px) {
+  .container {
+    height: max-content;
+  }
+}
+
 @media (max-width: 900px) {
   .title-cont {
     display: block;

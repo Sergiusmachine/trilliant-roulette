@@ -39,16 +39,17 @@ export const useUserStore = defineStore("userStore", {
             });
 
             if (res.status === 200) {
-              if (this.user.isAdmin !== res.data.admin) {
-                this.user.isAdmin = res.data.admin;
-
-                user.isAdmin = res.data.admin;
+              if (this.user.isAdmin !== res.data.user.admin) {
+                this.user.isAdmin = res.data.user.admin;
+                user.isAdmin = res.data.user.admin;
                 localStorage.setItem("user", JSON.stringify(user));
               }
             }
           }
         } catch (error) {
-          console.error("Ошибка при парсинге данных пользователя:", error);
+          if (error?.response?.status === 404) {
+            this.logout();
+          }
         }
       }
     },

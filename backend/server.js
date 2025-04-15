@@ -6,8 +6,6 @@ import cors from "cors";
 import { json } from "express";
 import path from "path";
 import schedule from "node-schedule";
-// import multer from 'multer';
-// import fs from 'fs'
 
 const { Pool } = pkg;
 const app = express();
@@ -107,30 +105,48 @@ app.post("/api/getInfo", async (req, res) => {
 app.put("/api/changeName", async (req, res) => {
   const { admin, action, username, newName } = req.body;
 
+  const client = await pool.connect();
+
   try {
-    const result = await pool.query(
+    await client.query("BEGIN");
+
+    const result = await client.query(
       "UPDATE users SET username = $2 WHERE username = $1",
       [username, newName]
     );
 
     if (result.rowCount > 0) {
+      await client.query(
+        "UPDATE user_prizes SET username = $2 WHERE username = $1",
+        [username, newName]
+      );
+
       const log =
         "INSERT INTO logs (admin, action, username, newname) VALUES ($1, $2, $3, $4)";
-      await pool.query(log, [admin, action, username, newName]);
-      res
-        .status(200)
-        .json({ success: true, message: "Ник пользователя успешно изменен" });
+      await client.query(log, [admin, action, username, newName]);
+
+      await client.query("COMMIT");
+
+      res.status(200).json({
+        success: true,
+        message: "Ник пользователя успешно изменен",
+      });
     } else {
-      res
-        .status(404)
-        .json({ success: false, message: "Пользователь не найден" });
+      await client.query("ROLLBACK");
+      res.status(404).json({
+        success: false,
+        message: "Пользователь не найден",
+      });
     }
   } catch (error) {
+    await client.query("ROLLBACK");
     console.error("Ошибка при обновлении имени пользователя:", error);
     res.status(500).json({
       success: false,
-      message: "Пользователь с таким ником уже существует",
+      message: "Произошла ошибка при изменении ника",
     });
+  } finally {
+    client.release();
   }
 });
 
@@ -214,59 +230,6 @@ app.post("/api/spinRoulette", async (req, res) => {
     client.release();
   }
 });
-
-// // Уменьшить количество рулеток
-// app.put("/api/updateQuantity", async (req, res) => {
-//   const { username } = req.body;
-//   try {
-//     const updateQuery =
-//       "UPDATE users SET quantity = quantity - 1, todayquantity = todayquantity - 1 WHERE username = $1 AND quantity > 0 RETURNING quantity, todayquantity;";
-//     const result = await pool.query(updateQuery, [username]);
-//     if (result.rows.length === 0) {
-//       return res
-//         .status(400)
-//         .json({ success: false, message: "Недостаточно рулеток" });
-//     }
-//     const newQuantity = result.rows[0].quantity;
-//     const newTodayQuantity = result.rows[0].todayquantity;
-//     res.status(200).json({
-//       success: true,
-//       quantity: newQuantity,
-//       todayQuantity: newTodayQuantity,
-//     });
-//   } catch (err) {
-//     res.status(500).json({ success: false, message: "Ошибка сервера" });
-//   }
-// });
-
-// // Добавить выигранный приз в базу данных
-// app.post("/api/getPrize", async (req, res) => {
-//   const {
-//     username,
-//     prizeName,
-//     url,
-//     quantity,
-//     userQuantityBefore,
-//     userQuantityAfter,
-//   } = req.body;
-//   try {
-//     const insertQuery =
-//       "INSERT INTO user_prizes (username, prize_name, quantity, url) VALUES ($1, $2, $3, $4)";
-//     await pool.query(insertQuery, [username, prizeName, quantity, url]);
-//     const logs = `INSERT INTO logs_prizes (username, prize_name, prize_quantity, user_quantity_before, user_quantity_after) VALUES ($1, $2, $3, $4, $5)`;
-//     await pool.query(logs, [
-//       username,
-//       prizeName,
-//       quantity,
-//       userQuantityBefore,
-//       userQuantityAfter,
-//     ]);
-//     res.sendStatus(204);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: "Ошибка сервера" });
-//   }
-// });
 
 // Создать админу новый приз
 app.post("/api/createPrize", async (req, res) => {
@@ -559,12 +522,12 @@ app.post("/api/checkAdmin", async (req, res) => {
   try {
     client = await pool.connect();
     const result = await client.query(
-      "SELECT admin FROM users WHERE username = $1",
+      "SELECT * FROM users WHERE username = $1",
       [username]
     );
 
     if (result.rows.length > 0) {
-      res.status(200).json({ admin: result.rows[0].admin });
+      res.status(200).json({ user: result.rows[0] });
     } else {
       res.status(404).json({ message: "Пользователь не найден" });
     }

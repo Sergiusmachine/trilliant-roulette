@@ -91,28 +91,6 @@ const start = () => {
   }
 };
 
-// // Уменьшаем количество круток после старта рулетки
-// const decreaseQuantity = async () => {
-//   try {
-//     const res = await api.put("/updateQuantity", {
-//       username: userStore.user.name,
-//     });
-
-//     if (res.status === 200) {
-//       userStore.decreaseQuantity();
-//     } else {
-//       console.error(`Unexpected response status: ${res.status}`);
-//     }
-//   } catch (error) {
-//     console.error("Error during quantity update:", error);
-//     if (error.response) {
-//       console.error(error.response?.data?.message || "Unknown error");
-//     } else {
-//       console.error("Network or unexpected error");
-//     }
-//   }
-// };
-
 // Добавляем в массив fakePrizes случайные элементы из массива prizes
 const arrayMix = () => {
   while (fakePrizes.value.length < 100) {
@@ -553,6 +531,12 @@ const buttonDisabled = computed(
   }
   .moveRoulette {
     transform: translateX(calc(var(--random-number) * 1px - 320px));
+  }
+}
+
+@media (max-height: 400px) {
+  .parent {
+    height: 500px;
   }
 }
 </style>

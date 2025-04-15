@@ -42,20 +42,22 @@ const getLogs = async () => {
 
 // Улучшаем вид даты
 const dateCorrection = (dateStr) => {
-  const dateObj = new Date(dateStr);
-  const year = dateObj.getFullYear();
-  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
-  const day = String(dateObj.getDate()).padStart(2, "0");
-  const hours = String(dateObj.getHours()).padStart(2, "0");
-  const minutes = String(dateObj.getMinutes()).padStart(2, "0");
-  const seconds = String(dateObj.getSeconds()).padStart(2, "0");
+  const utcDate = new Date(dateStr);
+  const moscowTime = new Date(utcDate.getTime() + 3 * 60 * 60 * 1000);
 
-  if (!uniqueDates.value.includes(`${year}-${month}-${day}`)) {
-    uniqueDates.value.push(`${year}-${month}-${day}`);
+  const year = moscowTime.getFullYear();
+  const month = String(moscowTime.getMonth() + 1).padStart(2, "0");
+  const day = String(moscowTime.getDate()).padStart(2, "0");
+  const hours = String(moscowTime.getHours()).padStart(2, "0");
+  const minutes = String(moscowTime.getMinutes()).padStart(2, "0");
+  const seconds = String(moscowTime.getSeconds()).padStart(2, "0");
+
+  const dateOnly = `${year}-${month}-${day}`;
+  if (!uniqueDates.value.includes(dateOnly)) {
+    uniqueDates.value.push(dateOnly);
   }
 
-  const formattedDate = `${year}-${month}-${day}, ${hours}:${minutes}:${seconds}`;
-  return formattedDate;
+  return `${dateOnly}, ${hours}:${minutes}:${seconds}`;
 };
 
 // Улучшаем вид даты в option
@@ -93,9 +95,17 @@ const scrollTop = () => {
 
 const setActiveDate = () => {
   if (activeDate.value !== "Все") {
-    logsFiltered.value = logs.value.filter((item) =>
-      item.timestamp.includes(activeDate.value)
-    );
+    logsFiltered.value = logs.value.filter((item) => {
+      const utcDate = new Date(item.timestamp);
+      const moscowDate = new Date(utcDate.getTime() + 3 * 60 * 60 * 1000);
+
+      const year = moscowDate.getFullYear();
+      const month = String(moscowDate.getMonth() + 1).padStart(2, "0");
+      const day = String(moscowDate.getDate()).padStart(2, "0");
+
+      const dateOnly = `${year}-${month}-${day}`;
+      return dateOnly === activeDate.value;
+    });
   } else {
     logsFiltered.value = logs.value;
   }
@@ -127,6 +137,9 @@ const setActiveDate = () => {
           <span class="date">[{{ dateCorrection(log.timestamp) }}]</span>
           <span v-html="props.actionCorrection(log)"></span>
         </li>
+        <li v-if="logsFiltered.length === 0">
+          <h2 style="margin: 0">Список пуст</h2>
+        </li>
       </ul>
       <button
         v-if="logsFiltered.length > 25"
@@ -148,7 +161,7 @@ const setActiveDate = () => {
 
 .container {
   width: 80%;
-  height: 80vh;
+  max-height: 80vh;
   margin: 0 auto;
   margin-top: 50px;
   background-color: var(--gray);
@@ -164,9 +177,6 @@ const setActiveDate = () => {
 
 li {
   margin-bottom: 10px;
-  /* font-family: "Space Mono", monospace;
-  font-weight: 400;
-  font-style: normal; */
   font-size: 16px;
 }
 
