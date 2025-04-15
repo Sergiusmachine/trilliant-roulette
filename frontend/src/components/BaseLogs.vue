@@ -43,21 +43,26 @@ const getLogs = async () => {
 // Улучшаем вид даты
 const dateCorrection = (dateStr) => {
   const utcDate = new Date(dateStr);
-  const moscowTime = new Date(utcDate.getTime() + 3 * 60 * 60 * 1000);
 
-  const year = moscowTime.getFullYear();
-  const month = String(moscowTime.getMonth() + 1).padStart(2, "0");
-  const day = String(moscowTime.getDate()).padStart(2, "0");
-  const hours = String(moscowTime.getHours()).padStart(2, "0");
-  const minutes = String(moscowTime.getMinutes()).padStart(2, "0");
-  const seconds = String(moscowTime.getSeconds()).padStart(2, "0");
+  const formatter = new Intl.DateTimeFormat("ru-RU", {
+    timeZone: "Europe/Moscow",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  });
 
-  const dateOnly = `${year}-${month}-${day}`;
+  const parts = formatter.formatToParts(utcDate);
+  const get = (type) => parts.find((p) => p.type === type)?.value;
+
+  const dateOnly = `${get("year")}-${get("month")}-${get("day")}`;
   if (!uniqueDates.value.includes(dateOnly)) {
     uniqueDates.value.push(dateOnly);
   }
 
-  return `${dateOnly}, ${hours}:${minutes}:${seconds}`;
+  return `${dateOnly}, ${get("hour")}:${get("minute")}:${get("second")}`;
 };
 
 // Улучшаем вид даты в option
@@ -95,15 +100,18 @@ const scrollTop = () => {
 
 const setActiveDate = () => {
   if (activeDate.value !== "Все") {
+    const formatter = new Intl.DateTimeFormat("ru-RU", {
+      timeZone: "Europe/Moscow",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    });
+
     logsFiltered.value = logs.value.filter((item) => {
-      const utcDate = new Date(item.timestamp);
-      const moscowDate = new Date(utcDate.getTime() + 3 * 60 * 60 * 1000);
+      const moscowDateParts = formatter.formatToParts(new Date(item.timestamp));
+      const get = (type) => moscowDateParts.find((p) => p.type === type)?.value;
 
-      const year = moscowDate.getFullYear();
-      const month = String(moscowDate.getMonth() + 1).padStart(2, "0");
-      const day = String(moscowDate.getDate()).padStart(2, "0");
-
-      const dateOnly = `${year}-${month}-${day}`;
+      const dateOnly = `${get("year")}-${get("month")}-${get("day")}`;
       return dateOnly === activeDate.value;
     });
   } else {
