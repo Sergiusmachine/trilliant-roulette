@@ -42,7 +42,7 @@ const getLogs = async () => {
 
 // Улучшаем вид даты
 const dateCorrection = (dateStr) => {
-  const utcDate = new Date(dateStr);
+  const utcDate = new Date(dateStr.endsWith("Z") ? dateStr : dateStr + "Z");
 
   const formatter = new Intl.DateTimeFormat("ru-RU", {
     timeZone: "Europe/Moscow",
